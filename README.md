@@ -2,15 +2,15 @@
 
 MarginPilot — внутренняя бэкофис-система для оценки экономики SKU, изменения цен и управления акциями в кабинете Ozon.
 
-[Открыть кейс-сайт](https://onlyuncia.github.io/marginpilot-product-docs/) · [Читать единый кейс](case-marginpilot.md) · [Артефакты на сайте](https://onlyuncia.github.io/marginpilot-product-docs/artifacts.html) · [Карта документов](https://onlyuncia.github.io/marginpilot-product-docs/documents.html) · [Скачать PDF](output/pdf/case-marginpilot.pdf)
+[Открыть кейс-сайт](https://onlyuncia.github.io/marginpilot-product-docs/) · [Читать единый кейс](docs/case-marginpilot.md) · [Артефакты на сайте](https://onlyuncia.github.io/marginpilot-product-docs/artifacts.html) · [Карта документов](https://onlyuncia.github.io/marginpilot-product-docs/documents.html) · [Скачать PDF](output/pdf/case-marginpilot.pdf)
 
-## <img src="assets/ui/h-context.webp" alt="Контекст" width="100%" />
+## Контекст
 
 С MarginPilot работали **три менеджера по продажам**. Они управляли каталогом примерно из **3600 SKU** в **двух кабинетах Ozon**. В кейсе подробно разобрана схема DBS.
 
 После изменения комиссий или тарифов менеджеры пересчитывали цены в рабочей книге и загружали их в Ozon. Вместе с проверкой результата это занимало **1–4 часа**. Однажды ошибка в шаблоне привела к массовой отправке заниженных цен: часть товаров успела продаться до обнаружения ошибки. Так появилась ключевая задача MarginPilot — проверять экономику цены до отправки.
 
-## <img src="assets/ui/h-contribution.webp" alt="Мой вклад" width="100%" />
+## Мой вклад
 
 Я собирал требования и проектировал функции MarginPilot как бизнес- и системный аналитик.
 
@@ -23,11 +23,11 @@ MarginPilot — внутренняя бэкофис-система для оце
 
 Размеры пакетов различались, поэтому единый процент ускорения не рассчитывался. Период наблюдения за инцидентами не зафиксирован; денежный эффект не оценивался.
 
-## <img src="assets/ui/h-boundary.webp" alt="Граница расчёта" width="100%" />
+## Граница расчёта
 
 На данных 1С и Ozon MarginPilot оценивал **результат одной продажи SKU** при рассматриваемой цене. Спрос и будущий объём продаж система не прогнозировала.
 
-## <img src="assets/ui/h-diagrams.webp" alt="Ключевые диаграммы" width="100%" />
+## Ключевые диаграммы
 
 <img src="assets/ui/price-flow.webp" alt="Путь пакета цен: расчёт, проверка порога, решение менеджера, отправка в Ozon и сверка" width="100%" />
 
@@ -42,42 +42,42 @@ MarginPilot — внутренняя бэкофис-система для оце
 - [ER-диаграмма проектной базы данных](assets/database-schema.png).
 - [Состояния пакета и результата по SKU](assets/state-batch-sku.svg).
 
-## <img src="assets/ui/h-artifacts.webp" alt="Аналитические артефакты" width="100%" />
+## Аналитические артефакты
 
 ### Бизнес-анализ
 
-- [Бизнес-процессы: до и после внедрения](02-PROCESS-AS-IS-TO-BE.md)
-- [Функциональные требования](03-FUNCTIONAL-REQUIREMENTS.md)
-- [Бизнес-метрики и результаты](04-RESULTS.md)
-- [Ограничения и зависимости](05-CONSTRAINTS-DEPENDENCIES.md)
-- [Риски и меры снижения](06-RISKS-MITIGATION.md)
-- [Стейкхолдеры](07-STAKEHOLDERS.md)
-- [Успех проекта](08-PROJECT-SUCCESS.md)
-- [Планы расширения](09-EXPANSION-PLANS.md)
+- [Бизнес-процессы: до и после внедрения](docs/02-PROCESS-AS-IS-TO-BE.md)
+- [Функциональные требования](docs/03-FUNCTIONAL-REQUIREMENTS.md)
+- [Бизнес-метрики и результаты](docs/04-RESULTS.md)
+- [Ограничения и зависимости](docs/05-CONSTRAINTS-DEPENDENCIES.md)
+- [Риски и меры снижения](docs/06-RISKS-MITIGATION.md)
+- [Стейкхолдеры](docs/07-STAKEHOLDERS.md)
+- [Успех проекта](docs/08-PROJECT-SUCCESS.md)
+- [Планы расширения](docs/09-EXPANSION-PLANS.md)
 
 ### Системный анализ
 
-- [Архитектура системы: контейнерная диаграмма C4](01-SYSTEM-ARCHITECTURE.md)
-- [Use Cases: цены, акции и план-факт SKU](10-USE-CASES.md)
-- [Нефункциональные требования](11-NON-FUNCTIONAL-REQUIREMENTS.md)
-- [Критерии приёмки](16-ACCEPTANCE-CRITERIA.md)
+- [Архитектура системы: контейнерная диаграмма C4](docs/01-SYSTEM-ARCHITECTURE.md)
+- [Use Cases: цены, акции и план-факт SKU](docs/10-USE-CASES.md)
+- [Нефункциональные требования](docs/11-NON-FUNCTIONAL-REQUIREMENTS.md)
+- [Критерии приёмки](docs/16-ACCEPTANCE-CRITERIA.md)
 
 ### Технические приложения
 
-- [Backend-логика](12-BACKEND-LOGIC.md)
-- [HTTP-контракт внутреннего API (реконструкция)](13-HTTP-CONTRACT.md)
+- [Backend-логика](docs/12-BACKEND-LOGIC.md)
+- [HTTP-контракт внутреннего API (реконструкция)](docs/13-HTTP-CONTRACT.md)
 - [Проектная схема БД (DBML)](14-DATABASE-SCHEMA.dbml)
 - [OpenAPI-спецификация внутреннего API (реконструкция)](15-OPENAPI.json)
 
-## <img src="assets/ui/h-tools.webp" alt="Форматы и инструменты" width="100%" />
+## Форматы и инструменты
 
 ### Модели и контракты
 
-[![BPMN 2.0](assets/ui/badge-bpmn.svg)](assets/bpmn-bp01-to-be.bpmn) [![C4](assets/ui/badge-c4.svg)](01-SYSTEM-ARCHITECTURE.md) [![Mermaid](assets/ui/badge-mermaid.svg)](12-BACKEND-LOGIC.md) [![DBML](assets/ui/badge-dbml.svg)](14-DATABASE-SCHEMA.dbml) [![OpenAPI 3.1](assets/ui/badge-openapi.svg)](15-OPENAPI.json)
+[![BPMN 2.0](assets/ui/badge-bpmn.svg)](assets/bpmn-bp01-to-be.bpmn) [![C4](assets/ui/badge-c4.svg)](docs/01-SYSTEM-ARCHITECTURE.md) [![Mermaid](assets/ui/badge-mermaid.svg)](docs/12-BACKEND-LOGIC.md) [![DBML](assets/ui/badge-dbml.svg)](14-DATABASE-SCHEMA.dbml) [![OpenAPI 3.1](assets/ui/badge-openapi.svg)](15-OPENAPI.json)
 
 ### API и данные
 
-[![SwaggerHub](assets/ui/badge-swaggerhub.svg)](https://portal.swaggerhub.com/apis/grafio/api-marginpilot/1.0.0) [![PostgreSQL](assets/ui/badge-postgresql.svg)](14-DATABASE-SCHEMA.dbml) [![SQL](assets/ui/badge-sql.svg)](12-BACKEND-LOGIC.md)
+[![SwaggerHub](assets/ui/badge-swaggerhub.svg)](https://portal.swaggerhub.com/apis/grafio/api-marginpilot/1.0.0) [![PostgreSQL](assets/ui/badge-postgresql.svg)](14-DATABASE-SCHEMA.dbml) [![SQL](assets/ui/badge-sql.svg)](docs/12-BACKEND-LOGIC.md)
 <img src="assets/ui/divider.webp" alt="" width="100%" />
 
 OpenAPI реконструирован для кейса; SwaggerHub используется для публикации спецификации. Примеры для портфолио обезличены.

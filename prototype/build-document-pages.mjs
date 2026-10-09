@@ -27,6 +27,8 @@ const docs=[
   ['openapi','15-OPENAPI.json','Техническое приложение / Контракт']
 ];
 const documentPages=Object.fromEntries(docs.map(([page,file])=>[file,page+'.html']));
+// В репозитории Markdown лежит в docs; для страниц сайта ресурсы остаются в корне сборки.
+const siteResource=href=>href.replace(/^\.\.\//,'');
 
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inline=(text,pathPrefix='../../')=>{
@@ -35,7 +37,7 @@ const inline=(text,pathPrefix='../../')=>{
   value=value.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
   value=value.replace(/\*([^*]+)\*/g,'<em>$1</em>');
   value=value.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,(_,alt,href)=>{
-    const target=/^(https?:|data:)/i.test(href)?href:`${pathPrefix}${href.replace(/^\.\//,'')}`;
+    const target=/^(https?:|data:)/i.test(href)?href:`${pathPrefix}${siteResource(href.replace(/^\.\//,''))}`;
     return `<img class="doc-inline-image" src="${target}" alt="${alt}">`;
   });
   value=value.replace(/\[([^\]]+)\]\(([^)]+)\)/g,(_,label,href)=>{
@@ -46,7 +48,7 @@ const inline=(text,pathPrefix='../../')=>{
     const pagePrefix=pathPrefix==='../../../'?'':'docs/';
     if(documentPages[base])target=`${pagePrefix}${documentPages[base]}${hash}`;
     else if(base==='case-marginpilot.md')target=`${pathPrefix==='../../../'?'../index.html':'index.html'}${hash||'#story'}`;
-    else if(!/^(https?:|#|mailto:)/i.test(target))target=`../../${target.replace(/^\.\//,'')}`;
+    else if(!/^(https?:|#|mailto:)/i.test(target))target=`../../${siteResource(target.replace(/^\.\//,''))}`;
     return `<a href="${target}">${label}</a>`;
   });
   return value;
@@ -176,7 +178,7 @@ function renderMarkdown(markdown,pathPrefix='../../'){
 const commonNav=`<header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html#top"><span class="brand-mark" aria-hidden="true">m<span>↗</span></span>MarginPilot <small>/ case</small></a><nav aria-label="Навигация по кейсу"><a href="../index.html#story">Контекст</a><a href="../artifacts.html">Артефакты</a><a href="../documents.html">Карта документов</a></nav><a class="header-action" href="../index.html#demo">Открыть продукт <span>↗</span></a></div></header>`;
 const artifactContent={};
 for(const [slugName,file,kicker] of docs){
-  const source=await readFile(join(root,file),'utf8');
+  const source=await readFile(join(root,file.endsWith('.md')?'docs':'',file),'utf8');
   const title=(source.match(/^#\s+(.+)$/m)||[,basename(file,'.md')])[1].trim();
   const rendered=file.endsWith('.dbml')||file.endsWith('.json')?{html:`<pre class="doc-code"><code>${escape(file.endsWith('.json')?JSON.stringify(JSON.parse(source),null,2):source)}</code></pre>`,headings:[]}:renderMarkdown(source,'../../../');
   const embedded=file.endsWith('.dbml')||file.endsWith('.json')?rendered.html:renderMarkdown(source,'../../').html;
