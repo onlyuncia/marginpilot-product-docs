@@ -2,13 +2,9 @@
 
 MarginPilot — внутренняя бэкофис-система для оценки экономики SKU, изменения цен и управления акциями в кабинете Ozon.
 
-| Раздел | Ссылка |
-| --- | --- |
-| Кейс-сайт | [Открыть сайт](https://onlyuncia.github.io/marginpilot-product-docs/) |
-| Единый кейс | [Читать документ](docs/case-marginpilot.md) |
-| Артефакты | [Посмотреть на сайте](https://onlyuncia.github.io/marginpilot-product-docs/artifacts.html) |
-| Карта документов | [Открыть карту](https://onlyuncia.github.io/marginpilot-product-docs/documents.html) |
-| Версия для чтения | [Скачать PDF](output/pdf/case-marginpilot.pdf) |
+| [Кейс-сайт](https://onlyuncia.github.io/marginpilot-product-docs/) | [Прототип MarginPilot](https://onlyuncia.github.io/marginpilot-product-docs/#demo) | [Материалы проекта](https://onlyuncia.github.io/marginpilot-product-docs/artifacts.html) |
+| --- | --- | --- |
+| История проекта и мой вклад. [Единый кейс](docs/case-marginpilot.md) · [PDF](output/pdf/case-marginpilot.pdf) | Пройти сценарии на демонстрационных данных. | Требования, процессы и архитектура. [Карта документов](https://onlyuncia.github.io/marginpilot-product-docs/documents.html) |
 
 ## Контекст
 
