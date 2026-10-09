@@ -2,7 +2,13 @@
 
 MarginPilot — внутренняя бэкофис-система для оценки экономики SKU, изменения цен и управления акциями в кабинете Ozon.
 
-[Открыть кейс-сайт](https://onlyuncia.github.io/marginpilot-product-docs/) · [Читать единый кейс](docs/case-marginpilot.md) · [Артефакты на сайте](https://onlyuncia.github.io/marginpilot-product-docs/artifacts.html) · [Карта документов](https://onlyuncia.github.io/marginpilot-product-docs/documents.html) · [Скачать PDF](output/pdf/case-marginpilot.pdf)
+| Раздел | Ссылка |
+| --- | --- |
+| Кейс-сайт | [Открыть сайт](https://onlyuncia.github.io/marginpilot-product-docs/) |
+| Единый кейс | [Читать документ](docs/case-marginpilot.md) |
+| Артефакты | [Посмотреть на сайте](https://onlyuncia.github.io/marginpilot-product-docs/artifacts.html) |
+| Карта документов | [Открыть карту](https://onlyuncia.github.io/marginpilot-product-docs/documents.html) |
+| Версия для чтения | [Скачать PDF](output/pdf/case-marginpilot.pdf) |
 
 ## Контекст
 
@@ -60,17 +66,17 @@ MarginPilot — внутренняя бэкофис-система для оце
 
 - [Backend-логика](docs/12-BACKEND-LOGIC.md)
 - [HTTP-контракт внутреннего API (реконструкция)](docs/13-HTTP-CONTRACT.md)
-- [Проектная схема БД (DBML)](14-DATABASE-SCHEMA.dbml)
-- [OpenAPI-спецификация внутреннего API (реконструкция)](15-OPENAPI.json)
+- [Проектная схема БД (DBML)](docs/14-DATABASE-SCHEMA.dbml)
+- [OpenAPI-спецификация внутреннего API (реконструкция)](docs/15-OPENAPI.json)
 
 ## Форматы и инструменты
 
 ### Модели и контракты
 
-[![BPMN 2.0](assets/ui/badge-bpmn.svg)](assets/bpmn-bp01-to-be.bpmn) [![C4](assets/ui/badge-c4.svg)](docs/01-SYSTEM-ARCHITECTURE.md) [![Mermaid](assets/ui/badge-mermaid.svg)](docs/12-BACKEND-LOGIC.md) [![DBML](assets/ui/badge-dbml.svg)](14-DATABASE-SCHEMA.dbml) [![OpenAPI 3.1](assets/ui/badge-openapi.svg)](15-OPENAPI.json)
+[![BPMN 2.0](assets/ui/badge-bpmn.svg)](assets/bpmn-bp01-to-be.bpmn) [![C4](assets/ui/badge-c4.svg)](docs/01-SYSTEM-ARCHITECTURE.md) [![Mermaid](assets/ui/badge-mermaid.svg)](docs/12-BACKEND-LOGIC.md) [![DBML](assets/ui/badge-dbml.svg)](docs/14-DATABASE-SCHEMA.dbml) [![OpenAPI 3.1](assets/ui/badge-openapi.svg)](docs/15-OPENAPI.json)
 
 ### API и данные
 
-[![SwaggerHub](assets/ui/badge-swaggerhub.svg)](https://portal.swaggerhub.com/apis/grafio/api-marginpilot/1.0.0) [![PostgreSQL](assets/ui/badge-postgresql.svg)](14-DATABASE-SCHEMA.dbml) [![SQL](assets/ui/badge-sql.svg)](docs/12-BACKEND-LOGIC.md)
+[![SwaggerHub](assets/ui/badge-swaggerhub.svg)](https://portal.swaggerhub.com/apis/grafio/api-marginpilot/1.0.0) [![PostgreSQL](assets/ui/badge-postgresql.svg)](docs/14-DATABASE-SCHEMA.dbml) [![SQL](assets/ui/badge-sql.svg)](docs/12-BACKEND-LOGIC.md)
 
 <img src="assets/ui/divider.webp" alt="" width="100%" />

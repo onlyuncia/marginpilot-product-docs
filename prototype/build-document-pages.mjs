@@ -27,7 +27,7 @@ const docs=[
   ['openapi','15-OPENAPI.json','Техническое приложение / Контракт']
 ];
 const documentPages=Object.fromEntries(docs.map(([page,file])=>[file,page+'.html']));
-// В репозитории Markdown лежит в docs; для страниц сайта ресурсы остаются в корне сборки.
+// В репозитории исходные документы лежат в docs; для страниц сайта ресурсы остаются в корне сборки.
 const siteResource=href=>href.replace(/^\.\.\//,'');
 
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -178,14 +178,14 @@ function renderMarkdown(markdown,pathPrefix='../../'){
 const commonNav=`<header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html#top"><span class="brand-mark" aria-hidden="true">m<span>↗</span></span>MarginPilot <small>/ case</small></a><nav aria-label="Навигация по кейсу"><a href="../index.html#story">Контекст</a><a href="../artifacts.html">Артефакты</a><a href="../documents.html">Карта документов</a></nav><a class="header-action" href="../index.html#demo">Открыть продукт <span>↗</span></a></div></header>`;
 const artifactContent={};
 for(const [slugName,file,kicker] of docs){
-  const source=await readFile(join(root,file.endsWith('.md')?'docs':'',file),'utf8');
+  const source=(await readFile(join(root,'docs',file),'utf8')).replace(/\r\n/g,'\n');
   const title=(source.match(/^#\s+(.+)$/m)||[,basename(file,'.md')])[1].trim();
   const rendered=file.endsWith('.dbml')||file.endsWith('.json')?{html:`<pre class="doc-code"><code>${escape(file.endsWith('.json')?JSON.stringify(JSON.parse(source),null,2):source)}</code></pre>`,headings:[]}:renderMarkdown(source,'../../../');
   const embedded=file.endsWith('.dbml')||file.endsWith('.json')?rendered.html:renderMarkdown(source,'../../').html;
   artifactContent[slugName]=embedded;
   const toc=rendered.headings.filter(h=>h.level<=2).map(h=>`<a href="#${h.id}">${inline(h.text)}</a>`).join('');
-  const sourceLink=file.endsWith('.md')?'':`<a href="../../../${file}">Открыть исходный файл ↗</a>`;
-  const tocSourceLink=file.endsWith('.md')?'':`<a class="document-toc-source" href="../../../${file}">Исходный файл ↗</a>`;
+  const sourceLink=file.endsWith('.md')?'':`<a href="../../../docs/${file}">Открыть исходный файл ↗</a>`;
+  const tocSourceLink=file.endsWith('.md')?'':`<a class="document-toc-source" href="../../../docs/${file}">Исходный файл ↗</a>`;
   const body=`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="${escape(title)} — полный документ кейса MarginPilot"><meta name="theme-color" content="#f7f8f5"><title>MarginPilot — ${escape(title)}</title><link rel="stylesheet" href="../styles.css"></head><body>${commonNav}<main class="document-page"><section class="document-page-hero"><div class="wrap"><a class="artifact-breadcrumb" href="../artifacts.html">← Все артефакты</a><p class="kicker">${escape(kicker)}</p><h1>${inline(title)}</h1><div class="document-page-meta"><span>Полный документ</span><span>Исходный формат: ${file.endsWith('.dbml')?'DBML':file.endsWith('.json')?'JSON':'Markdown'}</span>${sourceLink}</div></div></section><section class="document-page-content"><div class="wrap document-layout"><article class="document-body">${rendered.html}</article><aside class="document-toc"><small>СОДЕРЖАНИЕ</small>${toc}${tocSourceLink}</aside></div></section></main><footer><div class="wrap"><a class="brand" href="../index.html#top">MarginPilot ↗</a><p>Портфельный кейс бизнес- и системного аналитика</p><a href="../artifacts.html">Все артефакты →</a></div></footer></body></html>`;
   await writeFile(join(output,`${slugName}.html`),body,'utf8');
 }

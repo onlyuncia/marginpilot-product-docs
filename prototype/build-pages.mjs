@@ -24,7 +24,7 @@ await cp(join(root,'assets'),join(target,'assets'),{recursive:true});
 await mkdir(join(target,'output','pdf'),{recursive:true});
 await cp(join(root,'output','pdf','case-marginpilot.pdf'),join(target,'output','pdf','case-marginpilot.pdf'));
 for(const file of ['14-DATABASE-SCHEMA.dbml','15-OPENAPI.json']){
-  await cp(join(root,file),join(target,file));
+  await cp(join(root,'docs',file),join(target,'docs',file));
 }
 
 async function rewriteLinks(directory){
@@ -38,7 +38,7 @@ async function rewriteLinks(directory){
     const depth=relative(target,directory).split(/[\\/]/).filter(Boolean).length;
     const prefix=depth?'../'.repeat(depth):'';
     const before=await readFile(path,'utf8');
-    const after=before.replace(/(?:\.\.\/){2,3}(?=(?:assets\/|output\/pdf\/|14-DATABASE-SCHEMA\.dbml|15-OPENAPI\.json))/g,prefix);
+    const after=before.replace(/(?:\.\.\/){2,3}(?=(?:assets\/|output\/pdf\/|docs\/(?:14-DATABASE-SCHEMA\.dbml|15-OPENAPI\.json)))/g,prefix);
     if(after!==before)await writeFile(path,after,'utf8');
   }
 }

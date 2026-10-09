@@ -406,7 +406,7 @@ PostgreSQL хранит данные, которые нужны после за�
 
 ## 8. Проектная схема PostgreSQL
 
-Изображение экспортировано из [редактируемой DBML-модели](../14-DATABASE-SCHEMA.dbml).
+Изображение экспортировано из [редактируемой DBML-модели](14-DATABASE-SCHEMA.dbml).
 
 ![ER-диаграмма проектной базы данных MarginPilot](../assets/database-schema.png)
 
