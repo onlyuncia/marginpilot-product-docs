@@ -4,13 +4,13 @@ MarginPilot — внутренняя бэкофис-система для оце
 
 [Открыть кейс-сайт](https://onlyuncia.github.io/marginpilot-product-docs/) · [Читать единый кейс](case-marginpilot.md) · [Артефакты на сайте](https://onlyuncia.github.io/marginpilot-product-docs/artifacts.html) · [Карта документов](https://onlyuncia.github.io/marginpilot-product-docs/documents.html) · [Скачать PDF](output/pdf/case-marginpilot.pdf)
 
-## <img src="assets/ui/h-context.png" alt="Контекст" width="100%" />
+## <img src="assets/ui/h-context.webp" alt="Контекст" width="100%" />
 
 С MarginPilot работали **три менеджера по продажам**. Они управляли каталогом примерно из **3600 SKU** в **двух кабинетах Ozon**. В кейсе подробно разобрана схема DBS.
 
 После изменения комиссий или тарифов менеджеры пересчитывали цены в рабочей книге и загружали их в Ozon. Вместе с проверкой результата это занимало **1–4 часа**. Однажды ошибка в шаблоне привела к массовой отправке заниженных цен: часть товаров успела продаться до обнаружения ошибки. Так появилась ключевая задача MarginPilot — проверять экономику цены до отправки.
 
-## <img src="assets/ui/h-contribution.png" alt="Мой вклад" width="100%" />
+## <img src="assets/ui/h-contribution.webp" alt="Мой вклад" width="100%" />
 
 Я собирал требования и проектировал функции MarginPilot как бизнес- и системный аналитик.
 
@@ -23,11 +23,11 @@ MarginPilot — внутренняя бэкофис-система для оце
 
 Размеры пакетов различались, поэтому единый процент ускорения не рассчитывался. Период наблюдения за инцидентами не зафиксирован; денежный эффект не оценивался.
 
-## <img src="assets/ui/h-boundary.png" alt="Граница расчёта" width="100%" />
+## <img src="assets/ui/h-boundary.webp" alt="Граница расчёта" width="100%" />
 
 На данных 1С и Ozon MarginPilot оценивал **результат одной продажи SKU** при рассматриваемой цене. Спрос и будущий объём продаж система не прогнозировала.
 
-## <img src="assets/ui/h-diagrams.png" alt="Ключевые диаграммы" width="100%" />
+## <img src="assets/ui/h-diagrams.webp" alt="Ключевые диаграммы" width="100%" />
 
 <img src="assets/ui/price-flow.webp" alt="Путь пакета цен: расчёт, проверка порога, решение менеджера, отправка в Ozon и сверка" width="100%" />
 
@@ -42,7 +42,7 @@ MarginPilot — внутренняя бэкофис-система для оце
 - [ER-диаграмма проектной базы данных](assets/database-schema.png).
 - [Состояния пакета и результата по SKU](assets/state-batch-sku.svg).
 
-## <img src="assets/ui/h-artifacts.png" alt="Аналитические артефакты" width="100%" />
+## <img src="assets/ui/h-artifacts.webp" alt="Аналитические артефакты" width="100%" />
 
 ### Бизнес-анализ
 
@@ -69,7 +69,7 @@ MarginPilot — внутренняя бэкофис-система для оце
 - [Проектная схема БД (DBML)](14-DATABASE-SCHEMA.dbml)
 - [OpenAPI-спецификация внутреннего API (реконструкция)](15-OPENAPI.json)
 
-## <img src="assets/ui/h-tools.png" alt="Форматы и инструменты" width="100%" />
+## <img src="assets/ui/h-tools.webp" alt="Форматы и инструменты" width="100%" />
 
 ### Модели и контракты
 
@@ -78,6 +78,6 @@ MarginPilot — внутренняя бэкофис-система для оце
 ### API и данные
 
 [![SwaggerHub](assets/ui/badge-swaggerhub.svg)](https://portal.swaggerhub.com/apis/grafio/api-marginpilot/1.0.0) [![PostgreSQL](assets/ui/badge-postgresql.svg)](14-DATABASE-SCHEMA.dbml) [![SQL](assets/ui/badge-sql.svg)](12-BACKEND-LOGIC.md)
-<img src="assets/ui/divider.png" alt="" width="100%" />
+<img src="assets/ui/divider.webp" alt="" width="100%" />
 
 OpenAPI реконструирован для кейса; SwaggerHub используется для публикации спецификации. Примеры для портфолио обезличены.
