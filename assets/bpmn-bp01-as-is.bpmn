@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_BP01_AsIs"
+                  targetNamespace="https://marginpilot.example/portfolio/bpmn">
+  <bpmn:process id="BP01_AsIs" name="БП-01. Подготовка и применение цен — до внедрения" isExecutable="false">
+    <bpmn:documentation>Реконструкция подтверждённого ручного процесса. Детали сверки раскрыты в документе 02-PROCESS-AS-IS-TO-BE.md.</bpmn:documentation>
+    <bpmn:startEvent id="Start_NeedToChangePrices" name="Нужно изменить цены">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_RecalculateInWorkbook" name="Пересчитать цены в рабочей книге">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_PrepareUploadTemplate" name="Подготовить файл-шаблон для загрузки">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_UploadTemplateToOzon" name="Загрузить файл в кабинет Ozon">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_GetCurrentPriceExport" name="Получить выгрузку актуальных цен из Ozon">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_CheckPricesInWorkbook" name="Сверить цены в рабочей книге">
+      <bpmn:documentation>Вставить выгрузку, обновить формулы и проверить цены.</bpmn:documentation>
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_PricesChecked" name="Цены проверены">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:textAnnotation id="Annotation_CheckAfterUpload">
+      <bpmn:text>Проверка происходит после загрузки, а не до неё</bpmn:text>
+    </bpmn:textAnnotation>
+    <bpmn:association id="Association_Risk" sourceRef="Task_UploadTemplateToOzon" targetRef="Annotation_CheckAfterUpload" />
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_NeedToChangePrices" targetRef="Task_RecalculateInWorkbook" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_RecalculateInWorkbook" targetRef="Task_PrepareUploadTemplate" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_PrepareUploadTemplate" targetRef="Task_UploadTemplateToOzon" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_UploadTemplateToOzon" targetRef="Task_GetCurrentPriceExport" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_GetCurrentPriceExport" targetRef="Task_CheckPricesInWorkbook" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_CheckPricesInWorkbook" targetRef="End_PricesChecked" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_BP01_AsIs">
+    <bpmndi:BPMNPlane id="Plane_BP01_AsIs" bpmnElement="BP01_AsIs">
+      <bpmndi:BPMNShape id="Shape_Start" bpmnElement="Start_NeedToChangePrices">
+        <dc:Bounds x="50" y="127" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="14" y="169" width="108" height="36" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Recalculate" bpmnElement="Task_RecalculateInWorkbook">
+        <dc:Bounds x="146" y="100" width="155" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Prepare" bpmnElement="Task_PrepareUploadTemplate">
+        <dc:Bounds x="356" y="100" width="155" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Upload" bpmnElement="Task_UploadTemplateToOzon">
+        <dc:Bounds x="566" y="100" width="155" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_GetExport" bpmnElement="Task_GetCurrentPriceExport">
+        <dc:Bounds x="776" y="100" width="155" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Check" bpmnElement="Task_CheckPricesInWorkbook">
+        <dc:Bounds x="986" y="100" width="155" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_End" bpmnElement="End_PricesChecked">
+        <dc:Bounds x="1201" y="127" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1173" y="169" width="92" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Annotation" bpmnElement="Annotation_CheckAfterUpload">
+        <dc:Bounds x="776" y="215" width="420" height="40" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_1" bpmnElement="Flow_1"><di:waypoint x="86" y="145" /><di:waypoint x="146" y="145" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_2" bpmnElement="Flow_2"><di:waypoint x="301" y="145" /><di:waypoint x="356" y="145" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_3" bpmnElement="Flow_3"><di:waypoint x="511" y="145" /><di:waypoint x="566" y="145" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_4" bpmnElement="Flow_4"><di:waypoint x="721" y="145" /><di:waypoint x="776" y="145" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_5" bpmnElement="Flow_5"><di:waypoint x="931" y="145" /><di:waypoint x="986" y="145" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_6" bpmnElement="Flow_6"><di:waypoint x="1141" y="145" /><di:waypoint x="1201" y="145" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Association" bpmnElement="Association_Risk"><di:waypoint x="721" y="190" /><di:waypoint x="721" y="235" /><di:waypoint x="776" y="235" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

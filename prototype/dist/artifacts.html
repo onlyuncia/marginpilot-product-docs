@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Артефакты кейса MarginPilot: процессы, требования, архитектура, API и модель данных.">
+  <meta name="theme-color" content="#f7f8f5"><title>MarginPilot — артефакты</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header"><div class="wrap header-inner">
+  <a class="brand" href="index.html#top"><span class="brand-mark" aria-hidden="true">m<span>↗</span></span>MarginPilot <small>/ case</small></a>
+  <nav aria-label="Навигация по кейсу"><a href="index.html#story">Контекст</a><a href="index.html#decisions">Мой вклад</a><a href="documents.html">Карта документов</a></nav>
+  <a class="header-action" href="index.html#demo">Открыть продукт <span>↗</span></a>
+</div></header>
+<main class="subpage-main">
+  <section class="subpage-hero"><div class="wrap">
+    <p class="kicker">04 / Артефакты кейса</p>
+    <h1>Как решение устроено<br><em>под капотом.</em></h1>
+    <p class="subpage-lead">Набор документов показывает путь от бизнес-проблемы до проверяемой логики: процессы, требования, состояния, API и модель данных собраны в одну систему.</p>
+    <div class="subpage-meta"><span>16 документов · 4 группы артефактов</span><a class="subpage-back" href="index.html#artifacts">← Вернуться к кейсу</a></div>
+  </div></section>
+  <section class="subpage-content"><div class="wrap">
+    <div class="subpage-intro"><h2>Выберите слой, который хотите разобрать.</h2><p>Каждый материал можно читать отдельно. Для цельного впечатления начните с процесса и Use Cases, затем переходите к устройству системы.</p></div>
+    <div class="artifact-groups">
+      <article class="artifact-group">
+        <div class="artifact-group-header"><div><small>01 / БИЗНЕС-АНАЛИЗ</small><h3>Проблема и правила работы</h3></div><span>8 материалов</span></div>
+        <a class="artifact-card" href="artifact.html?doc=process"><small>ПРОЦЕСС</small><strong>AS IS → TO BE и BPMN</strong><p>Как ручная загрузка превратилась в контролируемый цикл расчёта, отправки и сверки.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=functional"><small>ТРЕБОВАНИЯ</small><strong>Функциональные требования</strong><p>Проверяемые правила цен, предупреждения, акций и план-факта.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=results"><small>РЕЗУЛЬТАТ</small><strong>Бизнес-метрики и результаты</strong><p>Что изменилось в процессе и какие эффекты подтверждены без выдуманных финансовых сумм.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=constraints"><small>КОНТЕКСТ</small><strong>Ограничения и зависимости</strong><p>Внешние интеграции, роли команды и границы решения.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=risks"><small>РИСКИ</small><strong>Риски и меры снижения</strong><p>Технические, бизнес- и операционные риски с практическими мерами.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=stakeholders"><small>ЛЮДИ</small><strong>Стейкхолдеры</strong><p>Кто принимает решения, предоставляет данные и использует результат.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=success"><small>КРИТЕРИИ</small><strong>Успех проекта</strong><p>Критерии успеха и способы измерить изменения процесса.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=expansion"><small>РАЗВИТИЕ</small><strong>Планы расширения</strong><p>Следующие шаги и адаптация подхода к другим маркетплейсам.</p><span>↗</span></a>
+      </article>
+      <article class="artifact-group">
+        <div class="artifact-group-header"><div><small>02 / СИСТЕМНЫЙ АНАЛИЗ</small><h3>Поведение и устройство</h3></div><span>4 материала</span></div>
+        <a class="artifact-card" href="artifact.html?doc=usecases"><small>СЦЕНАРИИ</small><strong>Use Cases</strong><p>Три сквозных сценария: цены, участие в акции и анализ план-факта по SKU.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=nfr"><small>КАЧЕСТВО</small><strong>Нефункциональные требования</strong><p>Проектные нормативы производительности, надёжности и безопасности.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=architecture"><small>АРХИТЕКТУРА</small><strong>Контейнерная диаграмма C4</strong><p>Границы MarginPilot, интеграции с 1С и Ozon и внутренние компоненты.</p><span>↗</span></a>
+        <a class="artifact-card" href="artifact.html?doc=acceptance"><small>ПРИЁМКА</small><strong>Критерии приёмки</strong><p>Как проверить, что требования реализованы в основных и исключительных ветках.</p><span>↗</span></a>
+      </article>
+      <article class="artifact-group wide">
+        <div class="artifact-group-header"><div><small>03 / ТЕХНИЧЕСКИЕ ПРИЛОЖЕНИЯ</small><h3>Логика, данные и контракты</h3></div><span>4 материала</span></div>
+        <div class="artifact-groups artifact-groups-inner">
+          <a class="artifact-card" href="artifact.html?doc=backend"><small>ЛОГИКА</small><strong>Backend-логика</strong><p>Валидации, SQL для логичных операций, обработка ответа и автоматическая сверка.</p><span>↗</span></a>
+          <a class="artifact-card" href="artifact.html?doc=http"><small>HTTP</small><strong>Контракт внутреннего API</strong><p>Методы, статусы, уведомления и реконструированный обмен с интерфейсом.</p><span>↗</span></a>
+          <a class="artifact-card" href="artifact.html?doc=db"><small>ДАННЫЕ</small><strong>Модель PostgreSQL / DBML</strong><p>Сущности кабинета, SKU, снимков расчёта, продаж, расходов и пакетов изменений.</p><span>↗</span></a>
+          <a class="artifact-card" href="artifact.html?doc=openapi"><small>OPENAPI 3.1</small><strong>Спецификация API</strong><p>Машиночитаемая версия реконструированного контракта для SwaggerHub.</p><span>↗</span></a>
+        </div>
+      </article>
+      <article class="artifact-group wide">
+        <div class="artifact-group-header"><div><small>04 / ВИЗУАЛЬНЫЕ МАТЕРИАЛЫ</small><h3>Диаграммы и итоговый формат</h3></div><span>6 файлов</span></div>
+        <div class="artifact-groups artifact-groups-inner">
+          <a class="artifact-card" href="artifact.html?doc=as-is"><small>BPMN</small><strong>Процесс AS IS</strong><p>Рабочая книга, шаблон и ручная сверка до внедрения.</p><span>↗</span></a>
+          <a class="artifact-card" href="artifact.html?doc=to-be"><small>BPMN</small><strong>Процесс TO BE</strong><p>Расчёт, предупреждение, отправка и автоматическая проверка.</p><span>↗</span></a>
+          <a class="artifact-card" href="artifact.html?doc=c4"><small>C4</small><strong>Архитектура контейнеров</strong><p>Системный контур решения и внешние зависимости.</p><span>↗</span></a>
+          <a class="artifact-card" href="artifact.html?doc=er"><small>ER</small><strong>Схема базы данных</strong><p>Графическое представление проектной структуры PostgreSQL.</p><span>↗</span></a>
+          <a class="artifact-card" href="artifact.html?doc=state"><small>STATE</small><strong>Состояния пакета и SKU</strong><p>Как отправка и сверка проходят через подтверждение, таймаут и расхождение.</p><span>↗</span></a>
+          <a class="artifact-card" href="artifact.html?doc=pdf"><small>PDF</small><strong>Единый кейс</strong><p>Собранная версия материалов для просмотра и отправки.</p><span>↗</span></a>
+        </div>
+      </article>
+    </div>
+    <p class="subpage-note">OpenAPI и DBML в кейсе реконструированы для портфолио. Демо работает на синтетических данных, а исходная рабочая книга и внутренние цены не публикуются.</p>
+  </div></section>
+</main>
+<footer><div class="wrap"><a class="brand" href="index.html#top">MarginPilot ↗</a><p>Портфельный кейс бизнес- и системного аналитика</p><a href="documents.html">Карта документов →</a></div></footer>
+</body>
+</html>

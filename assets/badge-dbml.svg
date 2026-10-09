@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="67" height="24" viewBox="0 0 67 24" role="img" aria-label="DBML">
+  <rect x="0.5" y="0.5" width="66" height="23" rx="5" fill="#232a33" stroke="#657080"/>
+  <circle cx="12" cy="12" r="3.5" fill="#7dbedc"/>
+  <text x="21" y="16" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600">DBML</text>
+</svg>

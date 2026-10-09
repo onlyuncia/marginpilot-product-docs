@@ -1,0 +1,1273 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="15-OPENAPI.json — полный документ кейса MarginPilot"><meta name="theme-color" content="#f7f8f5"><title>MarginPilot — 15-OPENAPI.json</title><link rel="stylesheet" href="../styles.css"></head><body><header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html#top"><span class="brand-mark" aria-hidden="true">m<span>↗</span></span>MarginPilot <small>/ case</small></a><nav aria-label="Навигация по кейсу"><a href="../index.html#story">Контекст</a><a href="../artifacts.html">Артефакты</a><a href="../documents.html">Карта документов</a></nav><a class="header-action" href="../index.html#demo">Открыть продукт <span>↗</span></a></div></header><main class="document-page"><section class="document-page-hero"><div class="wrap"><a class="artifact-breadcrumb" href="../artifacts.html">← Все артефакты</a><p class="kicker">Техническое приложение / Контракт</p><h1>15-OPENAPI.json</h1><div class="document-page-meta"><span>Полный документ</span><span>Исходный формат: JSON</span><a href="../../../15-OPENAPI.json">Открыть исходный файл ↗</a></div></div></section><section class="document-page-content"><div class="wrap document-layout"><article class="document-body"><pre class="doc-code"><code>{
+  &quot;openapi&quot;: &quot;3.1.0&quot;,
+  &quot;info&quot;: {
+    &quot;title&quot;: &quot;MarginPilot — внутренний API&quot;,
+    &quot;version&quot;: &quot;1.0.0-case&quot;,
+    &quot;description&quot;: &quot;Реконструкция API для портфолио по согласованным сценариям работающей системы. Пути, JSON-поля и HTTP-коды не являются выгрузкой исходной спецификации. Доступ требует авторизации, но способ передачи сессии не реконструирован. Примеры обезличены.&quot;
+  },
+  &quot;servers&quot;: [
+    {
+      &quot;url&quot;: &quot;/api/v1&quot;,
+      &quot;description&quot;: &quot;Относительный базовый путь внутреннего API&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    {
+      &quot;name&quot;: &quot;Товары и оценка&quot;
+    },
+    {
+      &quot;name&quot;: &quot;Пакеты изменений&quot;
+    },
+    {
+      &quot;name&quot;: &quot;План-факт&quot;
+    }
+  ],
+  &quot;paths&quot;: {
+    &quot;/cabinets/{cabinet_id}/skus&quot;: {
+      &quot;parameters&quot;: [
+        {
+          &quot;$ref&quot;: &quot;#/components/parameters/CabinetId&quot;
+        }
+      ],
+      &quot;get&quot;: {
+        &quot;tags&quot;: [
+          &quot;Товары и оценка&quot;
+        ],
+        &quot;operationId&quot;: &quot;listSkus&quot;,
+        &quot;summary&quot;: &quot;Получить страницу товаров кабинета&quot;,
+        &quot;description&quot;: &quot;Название и миниатюра помогают менеджеру найти SKU. Отсутствующие справочные данные не заменяются вымышленными значениями.&quot;,
+        &quot;parameters&quot;: [
+          {
+            &quot;$ref&quot;: &quot;#/components/parameters/Search&quot;
+          },
+          {
+            &quot;$ref&quot;: &quot;#/components/parameters/Limit&quot;
+          },
+          {
+            &quot;$ref&quot;: &quot;#/components/parameters/Cursor&quot;
+          }
+        ],
+        &quot;responses&quot;: {
+          &quot;200&quot;: {
+            &quot;description&quot;: &quot;Страница SKU&quot;,
+            &quot;content&quot;: {
+              &quot;application/json&quot;: {
+                &quot;schema&quot;: {
+                  &quot;$ref&quot;: &quot;#/components/schemas/SkuPage&quot;
+                },
+                &quot;example&quot;: {
+                  &quot;items&quot;: [
+                    {
+                      &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+                      &quot;name&quot;: &quot;Товар для примера&quot;,
+                      &quot;thumbnail_url&quot;: &quot;https://example.com/demo/sku-001.jpg&quot;
+                    }
+                  ],
+                  &quot;next_cursor&quot;: null
+                }
+              }
+            }
+          },
+          &quot;400&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/BadRequest&quot;
+          },
+          &quot;401&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unauthorized&quot;
+          },
+          &quot;404&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/NotFound&quot;
+          },
+          &quot;500&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/InternalError&quot;
+          }
+        }
+      }
+    },
+    &quot;/cabinets/{cabinet_id}/evaluations&quot;: {
+      &quot;parameters&quot;: [
+        {
+          &quot;$ref&quot;: &quot;#/components/parameters/CabinetId&quot;
+        }
+      ],
+      &quot;post&quot;: {
+        &quot;tags&quot;: [
+          &quot;Товары и оценка&quot;
+        ],
+        &quot;operationId&quot;: &quot;evaluateEconomics&quot;,
+        &quot;summary&quot;: &quot;Оценить экономику выбранных SKU&quot;,
+        &quot;description&quot;: &quot;Цена ниже порога возвращается в результате оценки, а не как HTTP-ошибка. При создании пакета сервер выполняет бизнес-проверку заново.&quot;,
+        &quot;requestBody&quot;: {
+          &quot;required&quot;: true,
+          &quot;content&quot;: {
+            &quot;application/json&quot;: {
+              &quot;schema&quot;: {
+                &quot;$ref&quot;: &quot;#/components/schemas/EvaluationRequest&quot;
+              },
+              &quot;example&quot;: {
+                &quot;action&quot;: &quot;change_price&quot;,
+                &quot;items&quot;: [
+                  {
+                    &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+                    &quot;proposed_price&quot;: &quot;1290.00&quot;
+                  },
+                  {
+                    &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+                    &quot;proposed_price&quot;: &quot;890.00&quot;
+                  }
+                ]
+              }
+            }
+          }
+        },
+        &quot;responses&quot;: {
+          &quot;200&quot;: {
+            &quot;description&quot;: &quot;Результат расчёта по каждому SKU&quot;,
+            &quot;content&quot;: {
+              &quot;application/json&quot;: {
+                &quot;schema&quot;: {
+                  &quot;$ref&quot;: &quot;#/components/schemas/EvaluationResponse&quot;
+                },
+                &quot;example&quot;: {
+                  &quot;items&quot;: [
+                    {
+                      &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+                      &quot;economic_threshold&quot;: &quot;1100.00&quot;,
+                      &quot;planned_profit_per_unit&quot;: &quot;90.00&quot;,
+                      &quot;price_check&quot;: &quot;allowed&quot;
+                    },
+                    {
+                      &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+                      &quot;economic_threshold&quot;: &quot;1000.00&quot;,
+                      &quot;planned_profit_per_unit&quot;: &quot;-40.00&quot;,
+                      &quot;price_check&quot;: &quot;below_threshold&quot;
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          &quot;400&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/BadRequest&quot;
+          },
+          &quot;401&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unauthorized&quot;
+          },
+          &quot;404&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/NotFound&quot;
+          },
+          &quot;422&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unprocessable&quot;
+          },
+          &quot;500&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/InternalError&quot;
+          },
+          &quot;503&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/ExternalUnavailable&quot;
+          },
+          &quot;504&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/ExternalTimeout&quot;
+          }
+        }
+      }
+    },
+    &quot;/cabinets/{cabinet_id}/price-batches&quot;: {
+      &quot;parameters&quot;: [
+        {
+          &quot;$ref&quot;: &quot;#/components/parameters/CabinetId&quot;
+        }
+      ],
+      &quot;post&quot;: {
+        &quot;tags&quot;: [
+          &quot;Пакеты изменений&quot;
+        ],
+        &quot;operationId&quot;: &quot;createPriceBatch&quot;,
+        &quot;summary&quot;: &quot;Принять пакет новых цен к обработке&quot;,
+        &quot;description&quot;: &quot;Подтверждение цены ниже порога передаётся по каждому SKU. Отмена в интерфейсе не вызывает эту операцию. Повтор того же тела с тем же ключом возвращает исходный batch_id без повторной отправки в Ozon.&quot;,
+        &quot;parameters&quot;: [
+          {
+            &quot;$ref&quot;: &quot;#/components/parameters/IdempotencyKey&quot;
+          }
+        ],
+        &quot;requestBody&quot;: {
+          &quot;required&quot;: true,
+          &quot;content&quot;: {
+            &quot;application/json&quot;: {
+              &quot;schema&quot;: {
+                &quot;$ref&quot;: &quot;#/components/schemas/PriceBatchRequest&quot;
+              },
+              &quot;example&quot;: {
+                &quot;items&quot;: [
+                  {
+                    &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+                    &quot;proposed_price&quot;: &quot;1290.00&quot;
+                  },
+                  {
+                    &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+                    &quot;proposed_price&quot;: &quot;890.00&quot;,
+                    &quot;include_below_threshold&quot;: true
+                  }
+                ]
+              }
+            }
+          }
+        },
+        &quot;responses&quot;: {
+          &quot;202&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/BatchAccepted&quot;
+          },
+          &quot;400&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/BadRequest&quot;
+          },
+          &quot;401&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unauthorized&quot;
+          },
+          &quot;404&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/NotFound&quot;
+          },
+          &quot;409&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Conflict&quot;
+          },
+          &quot;422&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unprocessable&quot;
+          },
+          &quot;500&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/InternalError&quot;
+          },
+          &quot;503&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/ExternalUnavailable&quot;
+          },
+          &quot;504&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/ExternalTimeout&quot;
+          }
+        }
+      }
+    },
+    &quot;/cabinets/{cabinet_id}/promotion-batches&quot;: {
+      &quot;parameters&quot;: [
+        {
+          &quot;$ref&quot;: &quot;#/components/parameters/CabinetId&quot;
+        }
+      ],
+      &quot;post&quot;: {
+        &quot;tags&quot;: [
+          &quot;Пакеты изменений&quot;
+        ],
+        &quot;operationId&quot;: &quot;createPromotionBatch&quot;,
+        &quot;summary&quot;: &quot;Принять изменение участия в акции к обработке&quot;,
+        &quot;description&quot;: &quot;При добавлении нужна отдельная цена входа. При удалении цена не передаётся: прежнюю цену восстанавливает Ozon. Пока исход того же действия по SKU и акции неизвестен, повторный запрос не создаётся.&quot;,
+        &quot;parameters&quot;: [
+          {
+            &quot;$ref&quot;: &quot;#/components/parameters/IdempotencyKey&quot;
+          }
+        ],
+        &quot;requestBody&quot;: {
+          &quot;required&quot;: true,
+          &quot;content&quot;: {
+            &quot;application/json&quot;: {
+              &quot;schema&quot;: {
+                &quot;$ref&quot;: &quot;#/components/schemas/PromotionBatchRequest&quot;
+              },
+              &quot;example&quot;: {
+                &quot;action&quot;: &quot;add_to_promotion&quot;,
+                &quot;items&quot;: [
+                  {
+                    &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+                    &quot;promotion_id&quot;: &quot;PROMO-DEMO-01&quot;,
+                    &quot;promo_entry_price&quot;: &quot;890.00&quot;,
+                    &quot;include_below_threshold&quot;: true
+                  }
+                ]
+              }
+            }
+          }
+        },
+        &quot;responses&quot;: {
+          &quot;202&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/BatchAccepted&quot;
+          },
+          &quot;400&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/BadRequest&quot;
+          },
+          &quot;401&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unauthorized&quot;
+          },
+          &quot;404&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/NotFound&quot;
+          },
+          &quot;409&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Conflict&quot;
+          },
+          &quot;422&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unprocessable&quot;
+          },
+          &quot;500&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/InternalError&quot;
+          },
+          &quot;503&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/ExternalUnavailable&quot;
+          },
+          &quot;504&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/ExternalTimeout&quot;
+          }
+        }
+      }
+    },
+    &quot;/batches/{batch_id}&quot;: {
+      &quot;parameters&quot;: [
+        {
+          &quot;$ref&quot;: &quot;#/components/parameters/BatchId&quot;
+        }
+      ],
+      &quot;get&quot;: {
+        &quot;tags&quot;: [
+          &quot;Пакеты изменений&quot;
+        ],
+        &quot;operationId&quot;: &quot;getBatch&quot;,
+        &quot;summary&quot;: &quot;Получить текущее состояние пакета и SKU&quot;,
+        &quot;description&quot;: &quot;Пока страница результата открыта и пакет обрабатывается, интерфейс повторяет этот запрос автоматически. HTTP 200 означает успешное чтение состояния, а не успешное применение всех изменений в Ozon.&quot;,
+        &quot;responses&quot;: {
+          &quot;200&quot;: {
+            &quot;description&quot;: &quot;Состояние отправки и сверки по SKU&quot;,
+            &quot;content&quot;: {
+              &quot;application/json&quot;: {
+                &quot;schema&quot;: {
+                  &quot;$ref&quot;: &quot;#/components/schemas/BatchResult&quot;
+                },
+                &quot;example&quot;: {
+                  &quot;batch_id&quot;: &quot;00000000-0000-4000-8000-000000000101&quot;,
+                  &quot;cabinet_id&quot;: &quot;00000000-0000-4000-8000-000000000001&quot;,
+                  &quot;action&quot;: &quot;change_price&quot;,
+                  &quot;status&quot;: &quot;partial&quot;,
+                  &quot;items&quot;: [
+                    {
+                      &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+                      &quot;submission_result&quot;: &quot;reported_success&quot;,
+                      &quot;verification_result&quot;: &quot;matched&quot;,
+                      &quot;target_price&quot;: &quot;1290.00&quot;,
+                      &quot;actual_price&quot;: &quot;1290.00&quot;,
+                      &quot;error&quot;: null
+                    },
+                    {
+                      &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+                      &quot;submission_result&quot;: &quot;rejected&quot;,
+                      &quot;verification_result&quot;: &quot;mismatch&quot;,
+                      &quot;target_price&quot;: &quot;890.00&quot;,
+                      &quot;actual_price&quot;: &quot;1090.00&quot;,
+                      &quot;error&quot;: {
+                        &quot;code&quot;: &quot;OZON_REJECTED&quot;,
+                        &quot;message&quot;: &quot;Ozon отклонил изменение&quot;
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          &quot;400&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/BadRequest&quot;
+          },
+          &quot;401&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unauthorized&quot;
+          },
+          &quot;404&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/NotFound&quot;
+          },
+          &quot;500&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/InternalError&quot;
+          }
+        }
+      }
+    },
+    &quot;/cabinets/{cabinet_id}/skus/{seller_sku}/plan-fact&quot;: {
+      &quot;parameters&quot;: [
+        {
+          &quot;$ref&quot;: &quot;#/components/parameters/CabinetId&quot;
+        },
+        {
+          &quot;$ref&quot;: &quot;#/components/parameters/SellerSku&quot;
+        }
+      ],
+      &quot;get&quot;: {
+        &quot;tags&quot;: [
+          &quot;План-факт&quot;
+        ],
+        &quot;operationId&quot;: &quot;getPlanFact&quot;,
+        &quot;summary&quot;: &quot;Сравнить плановую и фактическую экономику SKU&quot;,
+        &quot;description&quot;: &quot;Версия плана выбирается по времени каждой продажи. Продажи и фактические расходы уже хранятся в PostgreSQL; открытие экрана не означает новый запрос к 1С или Ozon.&quot;,
+        &quot;parameters&quot;: [
+          {
+            &quot;$ref&quot;: &quot;#/components/parameters/PeriodStart&quot;
+          },
+          {
+            &quot;$ref&quot;: &quot;#/components/parameters/PeriodEnd&quot;
+          }
+        ],
+        &quot;responses&quot;: {
+          &quot;200&quot;: {
+            &quot;description&quot;: &quot;План, факт и отклонение за период&quot;,
+            &quot;content&quot;: {
+              &quot;application/json&quot;: {
+                &quot;schema&quot;: {
+                  &quot;$ref&quot;: &quot;#/components/schemas/PlanFact&quot;
+                },
+                &quot;example&quot;: {
+                  &quot;cabinet_id&quot;: &quot;00000000-0000-4000-8000-000000000001&quot;,
+                  &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+                  &quot;period_start&quot;: &quot;2025-10-01&quot;,
+                  &quot;period_end&quot;: &quot;2025-10-31&quot;,
+                  &quot;sold_units&quot;: 2,
+                  &quot;planned_profit_total&quot;: &quot;600.00&quot;,
+                  &quot;actual_profit_total&quot;: &quot;520.00&quot;,
+                  &quot;profit_deviation_total&quot;: &quot;-80.00&quot;,
+                  &quot;profit_deviation_per_unit&quot;: &quot;-40.00&quot;,
+                  &quot;actual_expenses&quot;: [
+                    {
+                      &quot;expense_type&quot;: &quot;advertising&quot;,
+                      &quot;amount&quot;: &quot;120.00&quot;
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          &quot;400&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/BadRequest&quot;
+          },
+          &quot;401&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unauthorized&quot;
+          },
+          &quot;404&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/NotFound&quot;
+          },
+          &quot;422&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/Unprocessable&quot;
+          },
+          &quot;500&quot;: {
+            &quot;$ref&quot;: &quot;#/components/responses/InternalError&quot;
+          }
+        }
+      }
+    }
+  },
+  &quot;components&quot;: {
+    &quot;parameters&quot;: {
+      &quot;CabinetId&quot;: {
+        &quot;name&quot;: &quot;cabinet_id&quot;,
+        &quot;in&quot;: &quot;path&quot;,
+        &quot;required&quot;: true,
+        &quot;description&quot;: &quot;Внутренний UUID кабинета, не ozon_client_id.&quot;,
+        &quot;schema&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;format&quot;: &quot;uuid&quot;
+        },
+        &quot;example&quot;: &quot;00000000-0000-4000-8000-000000000001&quot;
+      },
+      &quot;BatchId&quot;: {
+        &quot;name&quot;: &quot;batch_id&quot;,
+        &quot;in&quot;: &quot;path&quot;,
+        &quot;required&quot;: true,
+        &quot;schema&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;format&quot;: &quot;uuid&quot;
+        },
+        &quot;example&quot;: &quot;00000000-0000-4000-8000-000000000101&quot;
+      },
+      &quot;SellerSku&quot;: {
+        &quot;name&quot;: &quot;seller_sku&quot;,
+        &quot;in&quot;: &quot;path&quot;,
+        &quot;required&quot;: true,
+        &quot;schema&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;minLength&quot;: 1
+        },
+        &quot;example&quot;: &quot;SKU-DEMO-001&quot;
+      },
+      &quot;Search&quot;: {
+        &quot;name&quot;: &quot;search&quot;,
+        &quot;in&quot;: &quot;query&quot;,
+        &quot;description&quot;: &quot;Поиск товара на экране оценки.&quot;,
+        &quot;schema&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        }
+      },
+      &quot;Limit&quot;: {
+        &quot;name&quot;: &quot;limit&quot;,
+        &quot;in&quot;: &quot;query&quot;,
+        &quot;schema&quot;: {
+          &quot;type&quot;: &quot;integer&quot;,
+          &quot;minimum&quot;: 1,
+          &quot;maximum&quot;: 100,
+          &quot;default&quot;: 50
+        }
+      },
+      &quot;Cursor&quot;: {
+        &quot;name&quot;: &quot;cursor&quot;,
+        &quot;in&quot;: &quot;query&quot;,
+        &quot;schema&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        }
+      },
+      &quot;PeriodStart&quot;: {
+        &quot;name&quot;: &quot;period_start&quot;,
+        &quot;in&quot;: &quot;query&quot;,
+        &quot;required&quot;: true,
+        &quot;schema&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;format&quot;: &quot;date&quot;
+        },
+        &quot;example&quot;: &quot;2025-10-01&quot;
+      },
+      &quot;PeriodEnd&quot;: {
+        &quot;name&quot;: &quot;period_end&quot;,
+        &quot;in&quot;: &quot;query&quot;,
+        &quot;required&quot;: true,
+        &quot;description&quot;: &quot;Конец периода включительно. Должен быть не раньше period_start.&quot;,
+        &quot;schema&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;format&quot;: &quot;date&quot;
+        },
+        &quot;example&quot;: &quot;2025-10-31&quot;
+      },
+      &quot;IdempotencyKey&quot;: {
+        &quot;name&quot;: &quot;Idempotency-Key&quot;,
+        &quot;in&quot;: &quot;header&quot;,
+        &quot;required&quot;: true,
+        &quot;description&quot;: &quot;Один ключ и то же тело возвращают исходный batch_id; тот же ключ с другим телом даёт 409.&quot;,
+        &quot;schema&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;minLength&quot;: 1
+        },
+        &quot;example&quot;: &quot;demo-price-001&quot;
+      }
+    },
+    &quot;responses&quot;: {
+      &quot;BatchAccepted&quot;: {
+        &quot;description&quot;: &quot;Пакет сохранён и принят в обработку. Результат Ozon ещё не подтверждён.&quot;,
+        &quot;headers&quot;: {
+          &quot;Location&quot;: {
+            &quot;description&quot;: &quot;Адрес получения состояния пакета.&quot;,
+            &quot;schema&quot;: {
+              &quot;type&quot;: &quot;string&quot;
+            },
+            &quot;example&quot;: &quot;/api/v1/batches/00000000-0000-4000-8000-000000000101&quot;
+          }
+        },
+        &quot;content&quot;: {
+          &quot;application/json&quot;: {
+            &quot;schema&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/BatchAcceptedBody&quot;
+            },
+            &quot;example&quot;: {
+              &quot;batch_id&quot;: &quot;00000000-0000-4000-8000-000000000101&quot;,
+              &quot;status&quot;: &quot;accepted&quot;,
+              &quot;accepted_items&quot;: 2
+            }
+          }
+        }
+      },
+      &quot;BadRequest&quot;: {
+        &quot;description&quot;: &quot;Нечитаемый JSON или неверный формат параметра.&quot;,
+        &quot;content&quot;: {
+          &quot;application/problem+json&quot;: {
+            &quot;schema&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/ProblemDetails&quot;
+            }
+          }
+        }
+      },
+      &quot;Unauthorized&quot;: {
+        &quot;description&quot;: &quot;Требуется авторизованная сессия.&quot;,
+        &quot;content&quot;: {
+          &quot;application/problem+json&quot;: {
+            &quot;schema&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/ProblemDetails&quot;
+            }
+          }
+        }
+      },
+      &quot;NotFound&quot;: {
+        &quot;description&quot;: &quot;Кабинет, SKU или пакет не найден либо недоступен менеджеру.&quot;,
+        &quot;content&quot;: {
+          &quot;application/problem+json&quot;: {
+            &quot;schema&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/ProblemDetails&quot;
+            }
+          }
+        }
+      },
+      &quot;Conflict&quot;: {
+        &quot;description&quot;: &quot;То же действие ещё выполняется либо ключ идемпотентности использован с другим телом.&quot;,
+        &quot;content&quot;: {
+          &quot;application/problem+json&quot;: {
+            &quot;schema&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/ProblemDetails&quot;
+            }
+          }
+        }
+      },
+      &quot;Unprocessable&quot;: {
+        &quot;description&quot;: &quot;Бизнес-валидация не пройдена: например, пустой пакет, цена ниже порога без подтверждения или некорректный период.&quot;,
+        &quot;content&quot;: {
+          &quot;application/problem+json&quot;: {
+            &quot;schema&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/ProblemDetails&quot;
+            }
+          }
+        }
+      },
+      &quot;InternalError&quot;: {
+        &quot;description&quot;: &quot;Внутренняя ошибка MarginPilot до принятия команды.&quot;,
+        &quot;content&quot;: {
+          &quot;application/problem+json&quot;: {
+            &quot;schema&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/ProblemDetails&quot;
+            }
+          }
+        }
+      },
+      &quot;ExternalUnavailable&quot;: {
+        &quot;description&quot;: &quot;Нужный внешний источник недоступен до принятия команды.&quot;,
+        &quot;content&quot;: {
+          &quot;application/problem+json&quot;: {
+            &quot;schema&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/ProblemDetails&quot;
+            }
+          }
+        }
+      },
+      &quot;ExternalTimeout&quot;: {
+        &quot;description&quot;: &quot;Чтение внешнего источника до принятия команды завершилось таймаутом.&quot;,
+        &quot;content&quot;: {
+          &quot;application/problem+json&quot;: {
+            &quot;schema&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/ProblemDetails&quot;
+            }
+          }
+        }
+      }
+    },
+    &quot;schemas&quot;: {
+      &quot;Money&quot;: {
+        &quot;type&quot;: &quot;string&quot;,
+        &quot;pattern&quot;: &quot;^-?[0-9]+\\.[0-9]{2}$&quot;,
+        &quot;description&quot;: &quot;Десятичная сумма в рублях строкой, допускает отрицательный результат.&quot;,
+        &quot;examples&quot;: [
+          &quot;-40.00&quot;
+        ]
+      },
+      &quot;Price&quot;: {
+        &quot;type&quot;: &quot;string&quot;,
+        &quot;pattern&quot;: &quot;^[0-9]+\\.[0-9]{2}$&quot;,
+        &quot;description&quot;: &quot;Цена в рублях строкой. Положительность проверяется бизнес-валидацией.&quot;,
+        &quot;examples&quot;: [
+          &quot;1290.00&quot;
+        ]
+      },
+      &quot;NullableMoney&quot;: {
+        &quot;type&quot;: [
+          &quot;string&quot;,
+          &quot;null&quot;
+        ],
+        &quot;pattern&quot;: &quot;^-?[0-9]+\\.[0-9]{2}$&quot;,
+        &quot;description&quot;: &quot;null означает, что показатель нельзя достоверно рассчитать.&quot;
+      },
+      &quot;SkuSummary&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;seller_sku&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;seller_sku&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;name&quot;: {
+            &quot;type&quot;: [
+              &quot;string&quot;,
+              &quot;null&quot;
+            ]
+          },
+          &quot;thumbnail_url&quot;: {
+            &quot;type&quot;: [
+              &quot;string&quot;,
+              &quot;null&quot;
+            ],
+            &quot;format&quot;: &quot;uri&quot;
+          }
+        }
+      },
+      &quot;SkuPage&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;items&quot;,
+          &quot;next_cursor&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/SkuSummary&quot;
+            }
+          },
+          &quot;next_cursor&quot;: {
+            &quot;type&quot;: [
+              &quot;string&quot;,
+              &quot;null&quot;
+            ]
+          }
+        }
+      },
+      &quot;EvaluationRequest&quot;: {
+        &quot;oneOf&quot;: [
+          {
+            &quot;$ref&quot;: &quot;#/components/schemas/PriceEvaluationRequest&quot;
+          },
+          {
+            &quot;$ref&quot;: &quot;#/components/schemas/PromotionAddEvaluationRequest&quot;
+          },
+          {
+            &quot;$ref&quot;: &quot;#/components/schemas/PromotionRemoveEvaluationRequest&quot;
+          }
+        ]
+      },
+      &quot;PriceEvaluationRequest&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;action&quot;,
+          &quot;items&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;action&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;change_price&quot;
+            ]
+          },
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;minItems&quot;: 1,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/PriceCandidate&quot;
+            }
+          }
+        }
+      },
+      &quot;PriceCandidate&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;seller_sku&quot;,
+          &quot;proposed_price&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;seller_sku&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;proposed_price&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/Price&quot;
+          }
+        }
+      },
+      &quot;PromotionAddEvaluationRequest&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;action&quot;,
+          &quot;items&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;action&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;add_to_promotion&quot;
+            ]
+          },
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;minItems&quot;: 1,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/PromotionAddCandidate&quot;
+            }
+          }
+        }
+      },
+      &quot;PromotionAddCandidate&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;seller_sku&quot;,
+          &quot;promotion_id&quot;,
+          &quot;promo_entry_price&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;seller_sku&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;promotion_id&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;promo_entry_price&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/Price&quot;
+          }
+        }
+      },
+      &quot;PromotionRemoveEvaluationRequest&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;action&quot;,
+          &quot;items&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;action&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;remove_from_promotion&quot;
+            ]
+          },
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;minItems&quot;: 1,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/PromotionRemoveItem&quot;
+            }
+          }
+        }
+      },
+      &quot;EvaluationResponse&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;items&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/EvaluationItem&quot;
+            }
+          }
+        }
+      },
+      &quot;EvaluationItem&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;seller_sku&quot;,
+          &quot;economic_threshold&quot;,
+          &quot;planned_profit_per_unit&quot;,
+          &quot;price_check&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;seller_sku&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;economic_threshold&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/NullableMoney&quot;
+          },
+          &quot;planned_profit_per_unit&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/NullableMoney&quot;
+          },
+          &quot;price_check&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;allowed&quot;,
+              &quot;below_threshold&quot;,
+              &quot;not_applicable&quot;
+            ]
+          }
+        }
+      },
+      &quot;PriceBatchRequest&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;items&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;minItems&quot;: 1,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/PriceBatchItem&quot;
+            }
+          }
+        }
+      },
+      &quot;PriceBatchItem&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;seller_sku&quot;,
+          &quot;proposed_price&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;seller_sku&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;proposed_price&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/Price&quot;
+          },
+          &quot;include_below_threshold&quot;: {
+            &quot;type&quot;: &quot;boolean&quot;,
+            &quot;default&quot;: false,
+            &quot;description&quot;: &quot;Явное подтверждение отправки этого SKU ниже экономического порога.&quot;
+          }
+        }
+      },
+      &quot;PromotionBatchRequest&quot;: {
+        &quot;oneOf&quot;: [
+          {
+            &quot;$ref&quot;: &quot;#/components/schemas/PromotionAddBatchRequest&quot;
+          },
+          {
+            &quot;$ref&quot;: &quot;#/components/schemas/PromotionRemoveBatchRequest&quot;
+          }
+        ]
+      },
+      &quot;PromotionAddBatchRequest&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;action&quot;,
+          &quot;items&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;action&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;add_to_promotion&quot;
+            ]
+          },
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;minItems&quot;: 1,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/PromotionAddBatchItem&quot;
+            }
+          }
+        }
+      },
+      &quot;PromotionAddBatchItem&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;seller_sku&quot;,
+          &quot;promotion_id&quot;,
+          &quot;promo_entry_price&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;seller_sku&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;promotion_id&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;promo_entry_price&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/Price&quot;
+          },
+          &quot;include_below_threshold&quot;: {
+            &quot;type&quot;: &quot;boolean&quot;,
+            &quot;default&quot;: false,
+            &quot;description&quot;: &quot;Явное подтверждение цены входа ниже порога.&quot;
+          }
+        }
+      },
+      &quot;PromotionRemoveBatchRequest&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;action&quot;,
+          &quot;items&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;action&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;remove_from_promotion&quot;
+            ]
+          },
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;minItems&quot;: 1,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/PromotionRemoveItem&quot;
+            }
+          }
+        }
+      },
+      &quot;PromotionRemoveItem&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [
+          &quot;seller_sku&quot;,
+          &quot;promotion_id&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;seller_sku&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          },
+          &quot;promotion_id&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;minLength&quot;: 1
+          }
+        }
+      },
+      &quot;BatchAcceptedBody&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;batch_id&quot;,
+          &quot;status&quot;,
+          &quot;accepted_items&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;batch_id&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;format&quot;: &quot;uuid&quot;
+          },
+          &quot;status&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;accepted&quot;
+            ]
+          },
+          &quot;accepted_items&quot;: {
+            &quot;type&quot;: &quot;integer&quot;,
+            &quot;minimum&quot;: 1
+          }
+        }
+      },
+      &quot;BatchResult&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;batch_id&quot;,
+          &quot;cabinet_id&quot;,
+          &quot;action&quot;,
+          &quot;status&quot;,
+          &quot;items&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;batch_id&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;format&quot;: &quot;uuid&quot;
+          },
+          &quot;cabinet_id&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;format&quot;: &quot;uuid&quot;
+          },
+          &quot;action&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;change_price&quot;,
+              &quot;add_to_promotion&quot;,
+              &quot;remove_from_promotion&quot;
+            ]
+          },
+          &quot;status&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;accepted&quot;,
+              &quot;verifying&quot;,
+              &quot;confirmed&quot;,
+              &quot;partial&quot;,
+              &quot;unconfirmed&quot;
+            ]
+          },
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/BatchItemResult&quot;
+            }
+          }
+        }
+      },
+      &quot;BatchItemResult&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;seller_sku&quot;,
+          &quot;submission_result&quot;,
+          &quot;verification_result&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;seller_sku&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;submission_result&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;pending&quot;,
+              &quot;reported_success&quot;,
+              &quot;rejected&quot;,
+              &quot;unknown&quot;
+            ],
+            &quot;description&quot;: &quot;Ответ на отправку. pending — ответ ещё ожидается; unknown — время ожидания истекло.&quot;
+          },
+          &quot;verification_result&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;enum&quot;: [
+              &quot;pending&quot;,
+              &quot;matched&quot;,
+              &quot;mismatch&quot;
+            ],
+            &quot;description&quot;: &quot;Результат отдельного чтения фактического состояния в Ozon.&quot;
+          },
+          &quot;target_price&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/NullableMoney&quot;
+          },
+          &quot;actual_price&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/NullableMoney&quot;
+          },
+          &quot;promotion_id&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;actual_participation&quot;: {
+            &quot;type&quot;: [
+              &quot;boolean&quot;,
+              &quot;null&quot;
+            ]
+          },
+          &quot;error&quot;: {
+            &quot;oneOf&quot;: [
+              {
+                &quot;$ref&quot;: &quot;#/components/schemas/ItemError&quot;
+              },
+              {
+                &quot;type&quot;: &quot;null&quot;
+              }
+            ]
+          }
+        }
+      },
+      &quot;ItemError&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;code&quot;,
+          &quot;message&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;code&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;message&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        }
+      },
+      &quot;PlanFact&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;cabinet_id&quot;,
+          &quot;seller_sku&quot;,
+          &quot;period_start&quot;,
+          &quot;period_end&quot;,
+          &quot;sold_units&quot;,
+          &quot;planned_profit_total&quot;,
+          &quot;actual_profit_total&quot;,
+          &quot;profit_deviation_total&quot;,
+          &quot;profit_deviation_per_unit&quot;,
+          &quot;actual_expenses&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;cabinet_id&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;format&quot;: &quot;uuid&quot;
+          },
+          &quot;seller_sku&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;period_start&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;format&quot;: &quot;date&quot;
+          },
+          &quot;period_end&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;format&quot;: &quot;date&quot;
+          },
+          &quot;sold_units&quot;: {
+            &quot;type&quot;: &quot;integer&quot;,
+            &quot;minimum&quot;: 0
+          },
+          &quot;planned_profit_total&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/NullableMoney&quot;
+          },
+          &quot;actual_profit_total&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/NullableMoney&quot;
+          },
+          &quot;profit_deviation_total&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/NullableMoney&quot;
+          },
+          &quot;profit_deviation_per_unit&quot;: {
+            &quot;type&quot;: [
+              &quot;string&quot;,
+              &quot;null&quot;
+            ],
+            &quot;pattern&quot;: &quot;^-?[0-9]+\\.[0-9]{2}$&quot;,
+            &quot;description&quot;: &quot;null при нулевых продажах или отсутствии действовавшей версии плана.&quot;
+          },
+          &quot;actual_expenses&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+              &quot;$ref&quot;: &quot;#/components/schemas/ActualExpense&quot;
+            }
+          }
+        }
+      },
+      &quot;ActualExpense&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;expense_type&quot;,
+          &quot;amount&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;expense_type&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;amount&quot;: {
+            &quot;$ref&quot;: &quot;#/components/schemas/Money&quot;
+          }
+        }
+      },
+      &quot;ProblemDetails&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;required&quot;: [
+          &quot;type&quot;,
+          &quot;title&quot;,
+          &quot;status&quot;,
+          &quot;detail&quot;,
+          &quot;code&quot;
+        ],
+        &quot;properties&quot;: {
+          &quot;type&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;format&quot;: &quot;uri&quot;
+          },
+          &quot;title&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;status&quot;: {
+            &quot;type&quot;: &quot;integer&quot;,
+            &quot;minimum&quot;: 400,
+            &quot;maximum&quot;: 599
+          },
+          &quot;detail&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;code&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          },
+          &quot;seller_skus&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+              &quot;type&quot;: &quot;string&quot;
+            }
+          }
+        }
+      }
+    }
+  }
+}</code></pre></article><aside class="document-toc"><small>СОДЕРЖАНИЕ</small><a class="document-toc-source" href="../../../15-OPENAPI.json">Исходный файл ↗</a></aside></div></section></main><footer><div class="wrap"><a class="brand" href="../index.html#top">MarginPilot ↗</a><p>Портфельный кейс бизнес- и системного аналитика</p><a href="../artifacts.html">Все артефакты →</a></div></footer></body></html>

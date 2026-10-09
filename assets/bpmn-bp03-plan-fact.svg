@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="930" viewBox="0 0 2480 930" role="img" aria-labelledby="title desc">
+<title id="title">BPMN: анализ плановой и фактической экономики SKU</title>
+<desc id="desc">Менеджер выбирает SKU и период. MarginPilot читает сохранённые продажи, расходы и версии плана из PostgreSQL. Если продажи есть, система сопоставляет каждую продажу с действовавшим на её дату планом и рассчитывает план, факт и отклонение. Если продаж нет, расходы показываются без показателей на проданную единицу. Менеджер просматривает результат.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset="1" stop-color="#eef2f7"/></linearGradient>
+  <marker id="seqArrow" markerWidth="12" markerHeight="12" refX="10.5" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1.5 L11 6 L1 10.5 Z" fill="#334155"/></marker>
+  <marker id="dataArrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M2 2 L10 6 L2 10" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <style>
+    text{font-family:Inter,'Segoe UI',Roboto,Arial,sans-serif}
+    .seq{fill:none;stroke:#334155;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;marker-end:url(#seqArrow)}
+    .assoc{fill:none;stroke:#64748b;stroke-width:2;stroke-dasharray:5 5;stroke-linecap:round;marker-end:url(#dataArrow)}
+    .title{font-size:26px;font-weight:700;fill:#0f172a}
+    .task{font-size:16px;font-weight:600;fill:#0f172a}
+    .small{font-size:14px;fill:#475569}
+    .pill{font-size:13px;font-weight:700;fill:#334155}
+    .lane{font-size:17px;font-weight:700;letter-spacing:.3px}
+    .store{font-size:18px;font-weight:700;fill:#1e3a5f}
+  </style>
+</defs>
+<rect width="2480" height="930" fill="url(#bg)"/>
+<text class="title" x="40" y="44">БП-03 · План-факт экономики SKU</text>
+
+<rect x="42" y="74" width="2400" height="700" rx="16" fill="#0f172a" opacity=".06"/>
+<clipPath id="poolclip"><rect x="40" y="70" width="2400" height="700" rx="16"/></clipPath>
+<g clip-path="url(#poolclip)">
+  <rect x="40" y="70" width="2400" height="220" fill="#fffdf8"/>
+  <rect x="40" y="290" width="2400" height="480" fill="#f4f8ff"/>
+  <rect x="40" y="70" width="36" height="700" fill="#1e3a5f"/>
+  <rect x="76" y="70" width="36" height="220" fill="#fde9c8"/>
+  <rect x="76" y="290" width="36" height="480" fill="#d6e6fb"/>
+</g>
+<path d="M76 290 H2440 M112 70 V770" stroke="#b6c2d2" stroke-width="1.5"/>
+<rect x="40" y="70" width="2400" height="700" rx="16" fill="none" stroke="#94a3b8" stroke-width="2"/>
+<text class="lane" fill="#fff" x="58" y="420" text-anchor="middle" transform="rotate(-90 58 420)">Анализ экономики</text>
+<text class="lane" fill="#92400e" x="94" y="180" text-anchor="middle" transform="rotate(-90 94 180)">Менеджер</text>
+<text class="lane" fill="#1e40af" x="94" y="530" text-anchor="middle" transform="rotate(-90 94 530)">MarginPilot</text>
+
+<!-- Сначала потоки, затем узлы: стрелки не закрывают подписи задач. -->
+<path class="seq" d="M222 185 H320"/>
+<path class="seq" d="M425 231 V420 H600"/>
+<path class="seq" d="M810 420 H878"/>
+<path class="seq" d="M932 420 H1040"/>
+<path class="seq" d="M905 447 V612 H1040"/>
+<path class="seq" d="M1250 420 H1340"/>
+<path class="seq" d="M1550 420 H1623"/>
+<path class="seq" d="M1250 612 H1650 V447"/>
+<path class="seq" d="M1677 420 H1760"/>
+<path class="seq" d="M1865 374 V185 H2050"/>
+<path class="seq" d="M2260 185 H2353"/>
+<path class="assoc" d="M705 610 V466"/>
+
+<circle cx="200" cy="185" r="22" fill="#ecfdf5" stroke="#16a34a" stroke-width="2.5"/>
+<text class="small" text-anchor="middle"><tspan x="200" y="134">Нужно изучить</tspan><tspan x="200" y="152">результат продаж</tspan></text>
+
+<rect x="322" y="143" width="210" height="92" rx="14" fill="#0f172a" opacity=".07"/>
+<rect x="320" y="139" width="210" height="92" rx="14" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+<g transform="translate(339 159)" fill="none" stroke="#b45309" stroke-width="1.7" stroke-linejoin="round"><circle cx="0" cy="-3" r="3.4"/><path d="M-6.5 7 Q-6.5 1.5 0 1.5 Q6.5 1.5 6.5 7 Z"/></g>
+<text class="task" text-anchor="middle"><tspan x="425" y="182">Выбрать SKU</tspan><tspan x="425" y="202">и период</tspan></text>
+
+<rect x="602" y="378" width="210" height="92" rx="14" fill="#0f172a" opacity=".07"/>
+<rect x="600" y="374" width="210" height="92" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<g transform="translate(619 394)"><circle r="7" fill="none" stroke="#2563eb" stroke-width="3" stroke-dasharray="3.665 3.665"/><circle r="5.3" fill="#2563eb"/><circle r="2.1" fill="#eff6ff"/></g>
+<text class="task" text-anchor="middle"><tspan x="705" y="410">Прочитать</tspan><tspan x="705" y="430">сохранённые</tspan><tspan x="705" y="450">данные</tspan></text>
+
+<polygon points="905,393 932,420 905,447 878,420" fill="#fef9c3" stroke="#ca8a04" stroke-width="2.2" stroke-linejoin="round"/>
+<path d="M896 411 L914 429 M914 411 L896 429" stroke="#a16207" stroke-width="3" stroke-linecap="round"/>
+<text class="small" x="905" y="475" text-anchor="middle">Есть продажи?</text>
+
+<rect x="1042" y="378" width="210" height="92" rx="14" fill="#0f172a" opacity=".07"/>
+<rect x="1040" y="374" width="210" height="92" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<g transform="translate(1059 394)"><circle r="7" fill="none" stroke="#2563eb" stroke-width="3" stroke-dasharray="3.665 3.665"/><circle r="5.3" fill="#2563eb"/><circle r="2.1" fill="#eff6ff"/></g>
+<text class="task" text-anchor="middle"><tspan x="1145" y="410">Найти версию</tspan><tspan x="1145" y="430">плана для каждой</tspan><tspan x="1145" y="450">продажи</tspan></text>
+
+<rect x="1342" y="378" width="210" height="92" rx="14" fill="#0f172a" opacity=".07"/>
+<rect x="1340" y="374" width="210" height="92" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<g transform="translate(1359 394)"><circle r="7" fill="none" stroke="#2563eb" stroke-width="3" stroke-dasharray="3.665 3.665"/><circle r="5.3" fill="#2563eb"/><circle r="2.1" fill="#eff6ff"/></g>
+<text class="task" text-anchor="middle"><tspan x="1445" y="410">Рассчитать план,</tspan><tspan x="1445" y="430">факт и отклонение</tspan><tspan x="1445" y="450">за период</tspan></text>
+
+<rect x="1042" y="570" width="210" height="92" rx="14" fill="#0f172a" opacity=".07"/>
+<rect x="1040" y="566" width="210" height="92" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<g transform="translate(1059 586)"><circle r="7" fill="none" stroke="#2563eb" stroke-width="3" stroke-dasharray="3.665 3.665"/><circle r="5.3" fill="#2563eb"/><circle r="2.1" fill="#eff6ff"/></g>
+<text class="task" text-anchor="middle"><tspan x="1145" y="602">Учесть расходы</tspan><tspan x="1145" y="622">без расчёта</tspan><tspan x="1145" y="642">на единицу</tspan></text>
+
+<polygon points="1650,393 1677,420 1650,447 1623,420" fill="#fef9c3" stroke="#ca8a04" stroke-width="2.2" stroke-linejoin="round"/>
+<path d="M1641 411 L1659 429 M1659 411 L1641 429" stroke="#a16207" stroke-width="3" stroke-linecap="round"/>
+
+<rect x="1762" y="378" width="210" height="92" rx="14" fill="#0f172a" opacity=".07"/>
+<rect x="1760" y="374" width="210" height="92" rx="14" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+<g transform="translate(1779 394)"><circle r="7" fill="none" stroke="#2563eb" stroke-width="3" stroke-dasharray="3.665 3.665"/><circle r="5.3" fill="#2563eb"/><circle r="2.1" fill="#eff6ff"/></g>
+<text class="task" text-anchor="middle"><tspan x="1865" y="410">Показать результат</tspan><tspan x="1865" y="430">по SKU и периоду</tspan></text>
+
+<rect x="2052" y="143" width="210" height="92" rx="14" fill="#0f172a" opacity=".07"/>
+<rect x="2050" y="139" width="210" height="92" rx="14" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+<g transform="translate(2069 159)" fill="none" stroke="#b45309" stroke-width="1.7" stroke-linejoin="round"><circle cx="0" cy="-3" r="3.4"/><path d="M-6.5 7 Q-6.5 1.5 0 1.5 Q6.5 1.5 6.5 7 Z"/></g>
+<text class="task" text-anchor="middle"><tspan x="2155" y="182">Просмотреть</tspan><tspan x="2155" y="202">результат</tspan></text>
+
+<circle cx="2375" cy="185" r="22" fill="#f0fdf4" stroke="#15803d" stroke-width="5"/>
+<text class="small" x="2375" y="138" text-anchor="middle">Анализ завершён</text>
+
+<!-- BPMN-хранилище данных: не внешний участник и не синхронный вызов 1С/Ozon. -->
+<rect x="602" y="625" width="210" height="75" rx="7" fill="#0f172a" opacity=".06"/>
+<rect x="600" y="619" width="210" height="74" fill="#fff" stroke="#64748b" stroke-width="2"/>
+<ellipse cx="705" cy="619" rx="105" ry="13" fill="#fff" stroke="#64748b" stroke-width="2"/>
+<path d="M600 679 Q705 705 810 679" fill="none" stroke="#64748b" stroke-width="2"/>
+<text class="store" x="705" y="653" text-anchor="middle">PostgreSQL</text>
+<text class="small" x="705" y="673" text-anchor="middle">продажи · расходы</text>
+<text class="small" x="705" y="691" text-anchor="middle">версии плана</text>
+<text class="small" x="718" y="541">чтение</text>
+
+<rect x="928" y="390" width="38" height="22" rx="11" fill="#fff" stroke="#cbd5e1" stroke-width="1.2"/>
+<text class="pill" x="947" y="405" text-anchor="middle">Да</text>
+<rect x="886" y="500" width="45" height="22" rx="11" fill="#fff" stroke="#cbd5e1" stroke-width="1.2"/>
+<text class="pill" x="908" y="515" text-anchor="middle">Нет</text>
+
+<rect x="40" y="811" width="1170" height="48" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.2"/>
+<rect x="62" y="823" width="34" height="24" rx="7" fill="#fffbeb" stroke="#d97706" stroke-width="1.8"/>
+<text class="small" x="106" y="840">Действие менеджера</text>
+<rect x="300" y="823" width="34" height="24" rx="7" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8"/>
+<text class="small" x="344" y="840">Автоматически в MarginPilot</text>
+<polygon points="614,822 627,835 614,848 601,835" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.8"/>
+<text class="small" x="638" y="840">Исключающий шлюз</text>
+<path d="M830 835 H864" stroke="#334155" stroke-width="2"/>
+<path d="M860 831 L867 835 L860 839 Z" fill="#334155"/>
+<text class="small" x="876" y="840">Поток операций</text>
+<path d="M1010 835 H1044" stroke="#64748b" stroke-width="2" stroke-dasharray="5 5"/>
+<text class="small" x="1054" y="840">Чтение данных</text>
+</svg>

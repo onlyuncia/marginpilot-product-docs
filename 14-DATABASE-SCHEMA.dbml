@@ -1,0 +1,231 @@
+Project MarginPilot {
+  database_type: 'PostgreSQL'
+  Note: 'Схема по подтверждённым сценариям и реконструированному контракту'
+}
+
+Table cabinet {
+  id uuid [pk, not null, note: 'Внутренний UUID кабинета MarginPilot']
+  name text [not null, note: 'Внутреннее название кабинета']
+  ozon_client_id text [not null, unique, note: 'Внешний идентификатор Ozon']
+  ozon_api_key_encrypted bytea [not null, note: 'Только шифртекст; ключ шифрования хранится вне БД']
+  seller_name text [not null]
+  inn text [not null]
+  performance_client_id text [note: 'NULL, если рекламный API не подключён']
+}
+
+Table manager {
+  user_id uuid [pk, not null]
+  last_name text [not null]
+  first_name text [not null]
+  middle_name text
+  email text [not null]
+  phone text
+  account_status text [not null, default: 'active']
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (`lower(email)`) [unique, name: 'manager_email_ci_uq']
+  }
+
+  checks {
+    `account_status IN ('active', 'disabled')`
+  }
+}
+
+Table sku {
+  cabinet_id uuid [not null]
+  seller_sku text [not null]
+  ozon_product_id text
+  name text
+  thumbnail_url text
+
+  indexes {
+    (cabinet_id, seller_sku) [pk]
+  }
+}
+
+Table change_batch {
+  batch_id uuid [pk, not null]
+  cabinet_id uuid [not null]
+  created_by uuid [not null]
+  action_type text [not null]
+  status text [not null, default: 'accepted']
+  idempotency_key text [not null]
+  request_fingerprint text [not null]
+  created_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (cabinet_id, idempotency_key) [unique]
+    (batch_id, cabinet_id, action_type) [unique]
+  }
+
+  checks {
+    `action_type IN ('change_price', 'add_to_promotion', 'remove_from_promotion')`
+    `status IN ('accepted', 'verifying', 'confirmed', 'partial', 'unconfirmed')`
+  }
+}
+
+Table change_item {
+  batch_id uuid [not null]
+  cabinet_id uuid [not null]
+  seller_sku text [not null]
+  action_type text [not null]
+  target_price numeric(14,2)
+  promotion_id text
+  include_below_threshold boolean [not null, default: false]
+  api_result text [not null, default: 'pending']
+  api_error text
+  verification_result text [not null, default: 'pending']
+  actual_price numeric(14,2)
+  actual_participation boolean
+  verified_at timestamptz
+
+  indexes {
+    (batch_id, seller_sku) [pk]
+    (batch_id, cabinet_id, seller_sku) [unique]
+    (cabinet_id, seller_sku) [name: 'change_item_sku_idx']
+  }
+
+  checks {
+    `target_price IS NULL OR target_price > 0`
+    `actual_price IS NULL OR actual_price >= 0`
+    `api_result IN ('pending', 'reported_success', 'rejected', 'unknown')`
+    `verification_result IN ('pending', 'matched', 'mismatch')`
+    `(action_type = 'change_price' AND target_price IS NOT NULL AND promotion_id IS NULL) OR (action_type = 'add_to_promotion' AND target_price IS NOT NULL AND promotion_id IS NOT NULL) OR (action_type = 'remove_from_promotion' AND target_price IS NULL AND promotion_id IS NOT NULL)`
+    `action_type <> 'remove_from_promotion' OR include_below_threshold = false`
+  }
+}
+
+Table calculation_snapshot {
+  batch_id uuid [not null]
+  cabinet_id uuid [not null]
+  seller_sku text [not null]
+  captured_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  evaluated_price numeric(14,2)
+  current_price numeric(14,2)
+  unit_cost numeric(14,2) [not null]
+  planned_markup_rate numeric(10,6) [not null]
+  payroll_per_unit numeric(14,2) [not null]
+  planned_logistics_cost_per_unit numeric(14,2) [not null]
+  planned_review_cost_per_unit numeric(14,2) [not null]
+  planned_ad_cost_per_sale numeric(14,2) [not null]
+  commission_rate numeric(8,6) [not null]
+  tariff_per_unit numeric(14,2) [not null]
+  participation_status boolean
+  boost_level text
+  boost_price_limit numeric(14,2)
+  economic_threshold numeric(14,2) [not null]
+  planned_profit_per_unit numeric(14,2) [not null]
+
+  indexes {
+    (batch_id, seller_sku) [pk]
+  }
+
+  checks {
+    `evaluated_price IS NULL OR evaluated_price > 0`
+    `current_price IS NULL OR current_price >= 0`
+    `unit_cost >= 0`
+    `planned_markup_rate >= 0`
+    `payroll_per_unit >= 0`
+    `planned_logistics_cost_per_unit >= 0`
+    `planned_review_cost_per_unit >= 0`
+    `planned_ad_cost_per_sale >= 0`
+    `commission_rate >= 0 AND commission_rate <= 1`
+    `tariff_per_unit >= 0`
+    `boost_price_limit IS NULL OR boost_price_limit >= 0`
+    `economic_threshold >= 0`
+  }
+}
+
+Table decision_log {
+  decision_id bigint [pk, increment]
+  batch_id uuid [not null]
+  cabinet_id uuid [not null]
+  seller_sku text [not null]
+  user_id uuid [not null]
+  decided_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  decision text [not null]
+
+  indexes {
+    (batch_id, seller_sku) [unique]
+    decided_at [name: 'decision_log_decided_at_idx']
+  }
+
+  checks {
+    `decision = 'include_below_threshold'`
+  }
+}
+
+Table plan_version {
+  cabinet_id uuid [not null]
+  seller_sku text [not null]
+  valid_from timestamptz [not null]
+  planned_profit_per_unit numeric(14,2) [not null]
+  source_batch_id uuid [note: 'NULL для начальной версии плана']
+
+  indexes {
+    (cabinet_id, seller_sku, valid_from) [pk]
+    (source_batch_id, cabinet_id, seller_sku) [unique]
+  }
+}
+
+Table sale {
+  sale_id uuid [pk, not null, note: 'Внутренний ID MarginPilot']
+  cabinet_id uuid [not null]
+  source_sale_id text [not null, note: 'Устойчивый ключ строки при импорте из Ozon']
+  seller_sku text [not null]
+  sold_at timestamptz [not null]
+  quantity integer [not null]
+  revenue numeric(14,2) [not null]
+  cost_of_goods_sold numeric(14,2) [note: 'Проектное поле: себестоимость проданных единиц из 1С']
+
+  indexes {
+    (cabinet_id, source_sale_id) [unique]
+    (cabinet_id, seller_sku, sold_at) [name: 'sale_sku_period_idx']
+  }
+
+  checks {
+    `quantity > 0`
+    `cost_of_goods_sold IS NULL OR cost_of_goods_sold >= 0`
+  }
+}
+
+Table actual_expense {
+  expense_id uuid [pk, not null, note: 'Внутренний ID MarginPilot']
+  cabinet_id uuid [not null]
+  source_system text [not null]
+  source_expense_id text [not null]
+  seller_sku text [not null]
+  incurred_at timestamptz [not null]
+  expense_type text [not null]
+  amount numeric(14,2) [not null]
+
+  indexes {
+    (cabinet_id, source_system, source_expense_id) [unique]
+    (cabinet_id, seller_sku, incurred_at) [name: 'actual_expense_sku_period_idx']
+  }
+
+  checks {
+    `source_system IN ('one_c', 'ozon')`
+    `expense_type IN ('commission', 'logistics', 'reviews', 'advertising')`
+  }
+}
+
+Ref: sku.cabinet_id > cabinet.id
+
+Ref: change_batch.cabinet_id > cabinet.id
+Ref: change_batch.created_by > manager.user_id
+
+Ref: change_item.(batch_id, cabinet_id, action_type) > change_batch.(batch_id, cabinet_id, action_type)
+Ref: change_item.(cabinet_id, seller_sku) > sku.(cabinet_id, seller_sku)
+
+Ref: calculation_snapshot.(batch_id, cabinet_id, seller_sku) > change_item.(batch_id, cabinet_id, seller_sku)
+
+Ref: decision_log.user_id > manager.user_id
+Ref: decision_log.(batch_id, cabinet_id, seller_sku) > change_item.(batch_id, cabinet_id, seller_sku)
+
+Ref: plan_version.(cabinet_id, seller_sku) > sku.(cabinet_id, seller_sku)
+Ref: plan_version.(source_batch_id, cabinet_id, seller_sku) > change_item.(batch_id, cabinet_id, seller_sku)
+
+Ref: sale.(cabinet_id, seller_sku) > sku.(cabinet_id, seller_sku)
+Ref: actual_expense.(cabinet_id, seller_sku) > sku.(cabinet_id, seller_sku)

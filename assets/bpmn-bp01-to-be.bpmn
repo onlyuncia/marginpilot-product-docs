@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_BP01_ToBe"
+                  targetNamespace="https://marginpilot.example/portfolio/bpmn">
+  <bpmn:process id="BP01_ToBe" name="БП-01. Подготовка и применение цен" isExecutable="false">
+    <bpmn:documentation>Внутренний процесс управления ценами. Менеджер и MarginPilot работают в одном пуле; 1С и Ozon — внешние участники. Детали интерфейса и обработки API раскрыты в UC-001.</bpmn:documentation>
+    <bpmn:laneSet id="LaneSet_BP01_ToBe">
+      <bpmn:lane id="Lane_Manager" name="Менеджер">
+        <bpmn:flowNodeRef>Start_PriceChangeNeeded</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PreparePrices</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReviewWarning</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Continue</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Cancelled</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_MarginPilot" name="MarginPilot">
+        <bpmn:flowNodeRef>Task_CalculateEconomy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CheckThreshold</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_BelowThreshold</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DirectPackage</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ConfirmedPackage</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_HasSku</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LogDecision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Merge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendPrices</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_VerifyPrices</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_ResultRecorded</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_PriceChangeNeeded" name="Потребовалось обновить цены"><bpmn:outgoing>Flow_01</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:serviceTask id="Task_CalculateEconomy" name="Рассчитать экономику SKU">
+      <bpmn:documentation>Используются данные 1С и Ozon. Схема не раскрывает технические запросы к внешним API.</bpmn:documentation>
+      <bpmn:incoming>Flow_01</bpmn:incoming><bpmn:outgoing>Flow_02</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_PreparePrices" name="Выбрать SKU и запустить изменение цен">
+      <bpmn:documentation>Без выбранного SKU кнопка загрузки цен недоступна.</bpmn:documentation>
+      <bpmn:incoming>Flow_02</bpmn:incoming><bpmn:outgoing>Flow_03</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_CheckThreshold" name="Проверить экономический порог"><bpmn:incoming>Flow_03</bpmn:incoming><bpmn:outgoing>Flow_04</bpmn:outgoing></bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_BelowThreshold" name="Есть цены ниже порога?"><bpmn:incoming>Flow_04</bpmn:incoming><bpmn:outgoing>Flow_05</bpmn:outgoing><bpmn:outgoing>Flow_06</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_DirectPackage" name="Сформировать пакет"><bpmn:incoming>Flow_05</bpmn:incoming><bpmn:outgoing>Flow_14</bpmn:outgoing></bpmn:serviceTask>
+    <bpmn:userTask id="Task_ReviewWarning" name="Проверить предупреждение и выбрать SKU ниже порога">
+      <bpmn:documentation>При возврате по пустому пакету панель остаётся открытой; интерфейс показывает «SKU не выбраны».</bpmn:documentation>
+      <bpmn:incoming>Flow_06</bpmn:incoming><bpmn:incoming>Flow_11</bpmn:incoming><bpmn:outgoing>Flow_07</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_Continue" name="Продолжить?"><bpmn:incoming>Flow_07</bpmn:incoming><bpmn:outgoing>Flow_08</bpmn:outgoing><bpmn:outgoing>Flow_09</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Cancelled" name="Отправка отменена"><bpmn:incoming>Flow_08</bpmn:incoming></bpmn:endEvent>
+    <bpmn:serviceTask id="Task_ConfirmedPackage" name="Сформировать итоговый пакет"><bpmn:incoming>Flow_09</bpmn:incoming><bpmn:outgoing>Flow_10</bpmn:outgoing></bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_HasSku" name="Есть SKU к отправке?"><bpmn:incoming>Flow_10</bpmn:incoming><bpmn:outgoing>Flow_11</bpmn:outgoing><bpmn:outgoing>Flow_12</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_LogDecision" name="Записать подтверждение в журнал"><bpmn:incoming>Flow_12</bpmn:incoming><bpmn:outgoing>Flow_13</bpmn:outgoing></bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_Merge"><bpmn:incoming>Flow_13</bpmn:incoming><bpmn:incoming>Flow_14</bpmn:incoming><bpmn:outgoing>Flow_15</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_SendPrices" name="Принять пакет и передать цены в Ozon">
+      <bpmn:documentation>Ответ, частичные ошибки, недоступность API и таймаут обрабатываются по UC-001. При таймауте пакет не отправляется повторно автоматически.</bpmn:documentation>
+      <bpmn:incoming>Flow_15</bpmn:incoming><bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_VerifyPrices" name="Получить актуальные цены и сверить по SKU">
+      <bpmn:documentation>Сверка запускается автоматически. Для непроверенных SKU чтение повторяется позже; статус результата может остаться неподтверждённым.</bpmn:documentation>
+      <bpmn:incoming>Flow_16</bpmn:incoming><bpmn:outgoing>Flow_17</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="End_ResultRecorded" name="Результат по SKU сохранён"><bpmn:incoming>Flow_17</bpmn:incoming></bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="Start_PriceChangeNeeded" targetRef="Task_CalculateEconomy" />
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="Task_CalculateEconomy" targetRef="Task_PreparePrices" />
+    <bpmn:sequenceFlow id="Flow_03" sourceRef="Task_PreparePrices" targetRef="Task_CheckThreshold" />
+    <bpmn:sequenceFlow id="Flow_04" sourceRef="Task_CheckThreshold" targetRef="Gateway_BelowThreshold" />
+    <bpmn:sequenceFlow id="Flow_05" name="Нет" sourceRef="Gateway_BelowThreshold" targetRef="Task_DirectPackage" />
+    <bpmn:sequenceFlow id="Flow_06" name="Да" sourceRef="Gateway_BelowThreshold" targetRef="Task_ReviewWarning" />
+    <bpmn:sequenceFlow id="Flow_07" sourceRef="Task_ReviewWarning" targetRef="Gateway_Continue" />
+    <bpmn:sequenceFlow id="Flow_08" name="Отмена" sourceRef="Gateway_Continue" targetRef="End_Cancelled" />
+    <bpmn:sequenceFlow id="Flow_09" name="Подтвердить" sourceRef="Gateway_Continue" targetRef="Task_ConfirmedPackage" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_ConfirmedPackage" targetRef="Gateway_HasSku" />
+    <bpmn:sequenceFlow id="Flow_11" name="Нет" sourceRef="Gateway_HasSku" targetRef="Task_ReviewWarning" />
+    <bpmn:sequenceFlow id="Flow_12" name="Да" sourceRef="Gateway_HasSku" targetRef="Task_LogDecision" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Task_LogDecision" targetRef="Gateway_Merge" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_DirectPackage" targetRef="Gateway_Merge" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Gateway_Merge" targetRef="Task_SendPrices" />
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Task_SendPrices" targetRef="Task_VerifyPrices" />
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Task_VerifyPrices" targetRef="End_ResultRecorded" />
+  </bpmn:process>
+  <bpmn:collaboration id="Collaboration_BP01_ToBe" name="Управление ценами с внешними системами">
+    <bpmn:participant id="Participant_Internal" name="Управление ценами" processRef="BP01_ToBe" />
+    <bpmn:participant id="Participant_1C" name="1С" />
+    <bpmn:participant id="Participant_Ozon" name="Ozon" />
+    <bpmn:messageFlow id="Message_1C_Data" name="Данные для расчёта" sourceRef="Participant_1C" targetRef="Task_CalculateEconomy" />
+    <bpmn:messageFlow id="Message_Ozon_Data" name="Комиссии и тарифы" sourceRef="Participant_Ozon" targetRef="Task_CalculateEconomy" />
+    <bpmn:messageFlow id="Message_PricePackage" name="Пакет цен" sourceRef="Task_SendPrices" targetRef="Participant_Ozon" />
+    <bpmn:messageFlow id="Message_ActualPrices" name="Актуальные цены" sourceRef="Participant_Ozon" targetRef="Task_VerifyPrices" />
+  </bpmn:collaboration>
+  <bpmndi:BPMNDiagram id="Diagram_BP01_ToBe">
+    <bpmndi:BPMNPlane id="Plane_BP01_ToBe" bpmnElement="Collaboration_BP01_ToBe">
+      <bpmndi:BPMNShape id="Shape_Internal" bpmnElement="Participant_Internal" isHorizontal="true"><dc:Bounds x="40" y="60" width="2010" height="870" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_ManagerLane" bpmnElement="Lane_Manager" isHorizontal="true"><dc:Bounds x="40" y="60" width="2010" height="280" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_SystemLane" bpmnElement="Lane_MarginPilot" isHorizontal="true"><dc:Bounds x="40" y="340" width="2010" height="590" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_1C" bpmnElement="Participant_1C" isHorizontal="true"><dc:Bounds x="240" y="970" width="220" height="90" /><bpmndi:BPMNLabel><dc:Bounds x="320" y="1002" width="60" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Ozon" bpmnElement="Participant_Ozon" isHorizontal="true"><dc:Bounds x="500" y="970" width="1550" height="90" /><bpmndi:BPMNLabel><dc:Bounds x="1225" y="1002" width="100" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Start" bpmnElement="Start_PriceChangeNeeded"><dc:Bounds x="110" y="165" width="40" height="40" /><bpmndi:BPMNLabel><dc:Bounds x="62" y="211" width="138" height="38" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Calculate" bpmnElement="Task_CalculateEconomy"><dc:Bounds x="240" y="405" width="210" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Prepare" bpmnElement="Task_PreparePrices"><dc:Bounds x="500" y="145" width="230" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Check" bpmnElement="Task_CheckThreshold"><dc:Bounds x="760" y="405" width="170" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Below" bpmnElement="Gateway_BelowThreshold" isMarkerVisible="true"><dc:Bounds x="955" y="420" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="915" y="478" width="130" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Direct" bpmnElement="Task_DirectPackage"><dc:Bounds x="1100" y="545" width="200" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Warning" bpmnElement="Task_ReviewWarning"><dc:Bounds x="1080" y="145" width="240" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Continue" bpmnElement="Gateway_Continue" isMarkerVisible="true"><dc:Bounds x="1365" y="160" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="1340" y="120" width="100" height="25" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Cancel" bpmnElement="End_Cancelled"><dc:Bounds x="1502" y="167" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1460" y="211" width="120" height="25" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Confirmed" bpmnElement="Task_ConfirmedPackage"><dc:Bounds x="1380" y="405" width="220" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_HasSku" bpmnElement="Gateway_HasSku" isMarkerVisible="true"><dc:Bounds x="1640" y="420" width="50" height="50" /><bpmndi:BPMNLabel><dc:Bounds x="1715" y="432" width="160" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Log" bpmnElement="Task_LogDecision"><dc:Bounds x="1500" y="545" width="200" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Merge" bpmnElement="Gateway_Merge" isMarkerVisible="true"><dc:Bounds x="1705" y="640" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Send" bpmnElement="Task_SendPrices"><dc:Bounds x="1800" y="625" width="200" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_Verify" bpmnElement="Task_VerifyPrices"><dc:Bounds x="1700" y="760" width="200" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Shape_End" bpmnElement="End_ResultRecorded"><dc:Bounds x="1962" y="782" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="1840" y="858" width="150" height="30" /></bpmndi:BPMNLabel></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Edge_01" bpmnElement="Flow_01"><di:waypoint x="150" y="185" /><di:waypoint x="190" y="185" /><di:waypoint x="190" y="445" /><di:waypoint x="240" y="445" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_02" bpmnElement="Flow_02"><di:waypoint x="345" y="405" /><di:waypoint x="345" y="280" /><di:waypoint x="615" y="280" /><di:waypoint x="615" y="225" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_03" bpmnElement="Flow_03"><di:waypoint x="730" y="185" /><di:waypoint x="740" y="185" /><di:waypoint x="740" y="445" /><di:waypoint x="760" y="445" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_04" bpmnElement="Flow_04"><di:waypoint x="930" y="445" /><di:waypoint x="955" y="445" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_05" bpmnElement="Flow_05"><di:waypoint x="1005" y="445" /><di:waypoint x="1200" y="445" /><di:waypoint x="1200" y="545" /><bpmndi:BPMNLabel><dc:Bounds x="1020" y="414" width="42" height="22" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_06" bpmnElement="Flow_06"><di:waypoint x="980" y="420" /><di:waypoint x="980" y="185" /><di:waypoint x="1080" y="185" /><bpmndi:BPMNLabel><dc:Bounds x="991" y="275" width="34" height="22" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_07" bpmnElement="Flow_07"><di:waypoint x="1320" y="185" /><di:waypoint x="1365" y="185" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_08" bpmnElement="Flow_08"><di:waypoint x="1415" y="185" /><di:waypoint x="1502" y="185" /><bpmndi:BPMNLabel><dc:Bounds x="1430" y="153" width="72" height="22" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_09" bpmnElement="Flow_09"><di:waypoint x="1390" y="210" /><di:waypoint x="1390" y="365" /><di:waypoint x="1490" y="365" /><di:waypoint x="1490" y="405" /><bpmndi:BPMNLabel><dc:Bounds x="1400" y="297" width="118" height="22" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_10" bpmnElement="Flow_10"><di:waypoint x="1600" y="445" /><di:waypoint x="1640" y="445" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_11" bpmnElement="Flow_11"><di:waypoint x="1665" y="420" /><di:waypoint x="1665" y="100" /><di:waypoint x="1200" y="100" /><di:waypoint x="1200" y="145" /><bpmndi:BPMNLabel><dc:Bounds x="1325" y="70" width="220" height="24" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_12" bpmnElement="Flow_12"><di:waypoint x="1665" y="470" /><di:waypoint x="1665" y="520" /><di:waypoint x="1600" y="520" /><di:waypoint x="1600" y="545" /><bpmndi:BPMNLabel><dc:Bounds x="1680" y="492" width="35" height="22" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_13" bpmnElement="Flow_13"><di:waypoint x="1700" y="585" /><di:waypoint x="1730" y="585" /><di:waypoint x="1730" y="640" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_14" bpmnElement="Flow_14"><di:waypoint x="1200" y="625" /><di:waypoint x="1200" y="665" /><di:waypoint x="1705" y="665" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_15" bpmnElement="Flow_15"><di:waypoint x="1755" y="665" /><di:waypoint x="1800" y="665" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_16" bpmnElement="Flow_16"><di:waypoint x="1900" y="705" /><di:waypoint x="1900" y="735" /><di:waypoint x="1800" y="735" /><di:waypoint x="1800" y="760" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_17" bpmnElement="Flow_17"><di:waypoint x="1900" y="800" /><di:waypoint x="1962" y="800" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Message_1C" bpmnElement="Message_1C_Data"><di:waypoint x="345" y="970" /><di:waypoint x="345" y="485" /><bpmndi:BPMNLabel><dc:Bounds x="255" y="900" width="95" height="24" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Message_Ozon_Data" bpmnElement="Message_Ozon_Data"><di:waypoint x="500" y="1015" /><di:waypoint x="475" y="1015" /><di:waypoint x="475" y="445" /><di:waypoint x="450" y="445" /><bpmndi:BPMNLabel><dc:Bounds x="505" y="881" width="165" height="24" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Message_Package" bpmnElement="Message_PricePackage"><di:waypoint x="2000" y="665" /><di:waypoint x="2030" y="665" /><di:waypoint x="2030" y="970" /><bpmndi:BPMNLabel><dc:Bounds x="1880" y="920" width="105" height="24" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Edge_Message_Prices" bpmnElement="Message_ActualPrices"><di:waypoint x="1750" y="970" /><di:waypoint x="1750" y="840" /><bpmndi:BPMNLabel><dc:Bounds x="1575" y="902" width="160" height="24" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

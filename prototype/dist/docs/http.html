@@ -1,0 +1,122 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="HTTP-контракт MarginPilot — реконструкция — полный документ кейса MarginPilot"><meta name="theme-color" content="#f7f8f5"><title>MarginPilot — HTTP-контракт MarginPilot — реконструкция</title><link rel="stylesheet" href="../styles.css"></head><body><header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html#top"><span class="brand-mark" aria-hidden="true">m<span>↗</span></span>MarginPilot <small>/ case</small></a><nav aria-label="Навигация по кейсу"><a href="../index.html#story">Контекст</a><a href="../artifacts.html">Артефакты</a><a href="../documents.html">Карта документов</a></nav><a class="header-action" href="../index.html#demo">Открыть продукт <span>↗</span></a></div></header><main class="document-page"><section class="document-page-hero"><div class="wrap"><a class="artifact-breadcrumb" href="../artifacts.html">← Все артефакты</a><p class="kicker">Техническое приложение / HTTP</p><h1>HTTP-контракт MarginPilot — реконструкция</h1><div class="document-page-meta"><span>Полный документ</span><span>Исходный формат: Markdown</span></div></div></section><section class="document-page-content"><div class="wrap document-layout"><article class="document-body"><p>Контракт описывает обмен интерфейса с внутренним API MarginPilot. Сценарии цен, акций и план-факта соответствуют работавшему продукту; маршруты, JSON-поля и HTTP-коды восстановлены для кейса и не выдаются за исходную спецификацию. Примеры содержат вымышленные SKU и суммы. Вызовы 1С и Ozon относятся к интеграциям сервера и в этот контракт не входят.</p><p>Машиночитаемая версия контракта: <a href="openapi.html">OpenAPI 3.1</a>.</p><h2 id="1-общие-правила">1. Общие правила</h2><ul><li>Базовый путь: <code>/api/v1</code>.</li><li>Доступ требует авторизованной сессии. Способ передачи сессии не реконструируется; закрепление менеджеров за DBS/FBO не превращается в систему ролей.</li><li>Денежные значения в JSON передаются десятичными строками в рублях, например <code>&quot;1290.00&quot;</code>; даты — в формате <code>YYYY-MM-DD</code>, время — ISO 8601 с часовым поясом.</li><li>Ответ на команду изменения не равен подтверждению результата в Ozon. Применённая цена и участие в акции проверяются сервером отдельно, автоматически.</li></ul><h2 id="2-операции">2. Операции</h2><div class="doc-table-wrap"><table class="doc-table"><thead><tr><th>Метод и путь</th><th>Назначение</th><th>Успешный ответ</th></tr></thead><tbody><tr><td><code>GET /api/v1/cabinets/{cabinet_id}/skus</code></td><td>Список SKU для экрана оценки; поиск и постраничное чтение.</td><td><code>200</code></td></tr><tr><td><code>POST /api/v1/cabinets/{cabinet_id}/evaluations</code></td><td>Оценка экономики выбранных цен до отправки.</td><td><code>200</code></td></tr><tr><td><code>POST /api/v1/cabinets/{cabinet_id}/price-batches</code></td><td>Создать пакет цен и запустить его отправку в Ozon.</td><td><code>202</code></td></tr><tr><td><code>POST /api/v1/cabinets/{cabinet_id}/promotion-batches</code></td><td>Создать пакет изменений участия в акции и запустить его отправку в Ozon.</td><td><code>202</code></td></tr><tr><td><code>GET /api/v1/batches/{batch_id}</code></td><td>Состояние отправки и сверки по каждому SKU.</td><td><code>200</code></td></tr><tr><td><code>GET /api/v1/cabinets/{cabinet_id}/skus/{seller_sku}/plan-fact</code></td><td>План, факт и отклонение за период.</td><td><code>200</code></td></tr></tbody></table></div><p>Список SKU поддерживает поиск через <code>search</code>, <code>limit</code> (от 1 до 100, по умолчанию 50) и <code>cursor</code>; план-факт — обязательные <code>period_start</code> и <code>period_end</code>. <code>{cabinet_id}</code> — внутренний UUID кабинета, а не <code>ozon_client_id</code>. Приведённые пути и способ пагинации — часть реконструкции. Пример ответа на <code>GET /api/v1/cabinets/00000000-0000-4000-8000-000000000001/skus?limit=50</code>:</p><pre class="doc-code "><code>{
+  &quot;items&quot;: [
+    {
+      &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+      &quot;name&quot;: &quot;Товар для примера&quot;,
+      &quot;thumbnail_url&quot;: &quot;https://example.com/demo/sku-001.jpg&quot;
+    }
+  ],
+  &quot;next_cursor&quot;: null
+}</code></pre><h2 id="3-оценка-экономики">3. Оценка экономики</h2><p><code>POST /api/v1/cabinets/{cabinet_id}/evaluations</code> принимает список SKU и рассматриваемое действие. Для обычной цены используется <code>proposed_price</code>, для входа в акцию — <code>promotion_id</code> и <code>promo_entry_price</code>. При выходе из акции новая цена не задаётся: прежнюю восстанавливает Ozon.</p><p>Пример запроса для обычных цен:</p><pre class="doc-code "><code>{
+  &quot;action&quot;: &quot;change_price&quot;,
+  &quot;items&quot;: [
+    {&quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;, &quot;proposed_price&quot;: &quot;1290.00&quot;},
+    {&quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;, &quot;proposed_price&quot;: &quot;890.00&quot;}
+  ]
+}</code></pre><p><code>200 OK</code> возвращает расчёт по каждому SKU, включая экономический порог и признак цены ниже него:</p><pre class="doc-code "><code>{
+  &quot;items&quot;: [
+    {
+      &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+      &quot;economic_threshold&quot;: &quot;1100.00&quot;,
+      &quot;planned_profit_per_unit&quot;: &quot;90.00&quot;,
+      &quot;price_check&quot;: &quot;allowed&quot;
+    },
+    {
+      &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+      &quot;economic_threshold&quot;: &quot;1000.00&quot;,
+      &quot;planned_profit_per_unit&quot;: &quot;-40.00&quot;,
+      &quot;price_check&quot;: &quot;below_threshold&quot;
+    }
+  ]
+}</code></pre><p>Цена ниже порога — предупреждение, не ошибка HTTP-запроса. Менеджер решает, включать ли такой SKU в итоговый пакет. Перед принятием команды сервер проверяет цену и порог заново; прежний результат оценки не служит разрешением на отправку.</p><h2 id="4-отправка-пакета">4. Отправка пакета</h2><p>Оба <code>POST</code>-запроса принимают только итоговый выбор менеджера. При нажатии «Отмена» запрос не выполняется. Заголовок <code>Idempotency-Key</code> обязателен: повтор с тем же ключом и тем же телом возвращает прежний <code>batch_id</code>, а не отправляет действие в Ozon второй раз. Для другого тела тот же ключ недопустим. Отсутствующий <code>include_below_threshold</code> трактуется как <code>false</code>.</p><p>Пример пакета цен, где менеджер отдельно подтвердил один SKU ниже порога:</p><pre class="doc-code "><code>POST /api/v1/cabinets/00000000-0000-4000-8000-000000000001/price-batches
+Idempotency-Key: demo-price-001
+Content-Type: application/json</code></pre><pre class="doc-code "><code>{
+  &quot;items&quot;: [
+    {&quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;, &quot;proposed_price&quot;: &quot;1290.00&quot;},
+    {
+      &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+      &quot;proposed_price&quot;: &quot;890.00&quot;,
+      &quot;include_below_threshold&quot;: true
+    }
+  ]
+}</code></pre><p>Для акции запрос содержит <code>action: &quot;add_to_promotion&quot;</code> или <code>&quot;remove_from_promotion&quot;</code>; каждый элемент указывает <code>seller_sku</code> и <code>promotion_id</code>. При добавлении обязательна отдельная <code>promo_entry_price</code>, при удалении она не передаётся. Подтверждение цены ниже порога применимо только к добавлению. Сервер сохраняет пользователя, время, кабинет, SKU и решение о таком подтверждении.</p><p>Пример тела запроса на добавление в акцию:</p><pre class="doc-code "><code>{
+  &quot;action&quot;: &quot;add_to_promotion&quot;,
+  &quot;items&quot;: [
+    {
+      &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+      &quot;promotion_id&quot;: &quot;PROMO-DEMO-01&quot;,
+      &quot;promo_entry_price&quot;: &quot;890.00&quot;,
+      &quot;include_below_threshold&quot;: true
+    }
+  ]
+}</code></pre><p>После проверки и сохранения пакета сервер отвечает <code>202 Accepted</code> и заголовком <code>Location: /api/v1/batches/{batch_id}</code>. Ниже — ответ для приведённого выше пакета цен из двух SKU:</p><pre class="doc-code "><code>{
+  &quot;batch_id&quot;: &quot;00000000-0000-4000-8000-000000000101&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;accepted_items&quot;: 2
+}</code></pre><p><code>202</code> означает, что MarginPilot принял команду в обработку, а не что Ozon уже применил изменение. Если пакет не удалось сохранить до отправки, команда не считается принятой и запрос к Ozon не выполняется. Это правило безопасности реконструированного контракта, а не подтверждение конкретной обработки сбоя PostgreSQL в исходной системе.</p><h2 id="5-результат-по-sku">5. Результат по SKU</h2><p>Интерфейс получает результат через <code>GET /api/v1/batches/{batch_id}</code>. Пока открыта страница результата и обработка пакета не завершена, интерфейс повторяет запрос автоматически; менеджеру не нужно вручную обновлять страницу или запускать сверку. Сверку с Ozon запускает сервер. <code>submission_result</code> отражает ответ на отправку, <code>verification_result</code> — фактическое состояние после отдельного чтения Ozon.</p><pre class="doc-code "><code>{
+  &quot;batch_id&quot;: &quot;00000000-0000-4000-8000-000000000101&quot;,
+  &quot;cabinet_id&quot;: &quot;00000000-0000-4000-8000-000000000001&quot;,
+  &quot;action&quot;: &quot;change_price&quot;,
+  &quot;status&quot;: &quot;verifying&quot;,
+  &quot;items&quot;: [
+    {
+      &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+      &quot;submission_result&quot;: &quot;reported_success&quot;,
+      &quot;verification_result&quot;: &quot;matched&quot;,
+      &quot;target_price&quot;: &quot;1290.00&quot;,
+      &quot;actual_price&quot;: &quot;1290.00&quot;,
+      &quot;error&quot;: null
+    },
+    {
+      &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+      &quot;submission_result&quot;: &quot;rejected&quot;,
+      &quot;verification_result&quot;: &quot;pending&quot;,
+      &quot;target_price&quot;: &quot;890.00&quot;,
+      &quot;actual_price&quot;: null,
+      &quot;error&quot;: {&quot;code&quot;: &quot;OZON_REJECTED&quot;, &quot;message&quot;: &quot;Ozon отклонил изменение&quot;}
+    }
+  ]
+}</code></pre><p>После завершения сверки тот же пакет может получить частичный результат: Ozon применил цену первого SKU, но отклонил второй. Код <code>200</code> означает лишь, что состояние пакета удалось прочитать.</p><pre class="doc-code "><code>{
+  &quot;batch_id&quot;: &quot;00000000-0000-4000-8000-000000000101&quot;,
+  &quot;cabinet_id&quot;: &quot;00000000-0000-4000-8000-000000000001&quot;,
+  &quot;action&quot;: &quot;change_price&quot;,
+  &quot;status&quot;: &quot;partial&quot;,
+  &quot;items&quot;: [
+    {
+      &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+      &quot;submission_result&quot;: &quot;reported_success&quot;,
+      &quot;verification_result&quot;: &quot;matched&quot;,
+      &quot;target_price&quot;: &quot;1290.00&quot;,
+      &quot;actual_price&quot;: &quot;1290.00&quot;,
+      &quot;error&quot;: null
+    },
+    {
+      &quot;seller_sku&quot;: &quot;SKU-DEMO-002&quot;,
+      &quot;submission_result&quot;: &quot;rejected&quot;,
+      &quot;verification_result&quot;: &quot;mismatch&quot;,
+      &quot;target_price&quot;: &quot;890.00&quot;,
+      &quot;actual_price&quot;: &quot;1090.00&quot;,
+      &quot;error&quot;: {&quot;code&quot;: &quot;OZON_REJECTED&quot;, &quot;message&quot;: &quot;Ozon отклонил изменение&quot;}
+    }
+  ]
+}</code></pre><p>Для <code>submission_result</code> предусмотрены <code>pending</code>, <code>reported_success</code>, <code>rejected</code>, <code>unknown</code>; для <code>verification_result</code> — <code>matched</code>, <code>mismatch</code>, <code>pending</code>. <code>pending</code> означает, что ответ на отправку ещё ожидается; при таймауте результат становится <code>unknown</code>. В этом случае сервер читает актуальную цену или статус участия, повторяет неудавшееся чтение позже и <strong>не повторяет отправку автоматически</strong>. Частичный отказ Ozon возвращается в составе пакета, а не превращает уже выданный <code>202</code> в ошибку HTTP.</p><p>Состояние пакета <code>accepted</code> или <code>verifying</code> означает незавершённую обработку; <code>confirmed</code> — целевое состояние подтверждено для всех SKU; <code>partial</code> — проверка завершена, но не все SKU достигли цели; <code>unconfirmed</code> — результат хотя бы одного SKU пока не удалось выяснить.</p><p><img class="doc-inline-image" src="../../../assets/state-batch-sku.svg" alt="Состояния пакета и независимые результаты отправки и сверки по SKU"></p><p><a href="../../assets/state-batch-sku.svg">Открыть диаграмму в полном размере</a>. Диаграмма визуализирует реконструированный контракт, а не исходный код системы. <code>submission_result</code> и <code>verification_result</code> не образуют одну линейную цепочку: после таймаута отправки возможны <code>unknown</code> и одновременно <code>matched</code>, если отдельное чтение подтвердило целевое состояние. При <code>unconfirmed</code> повторяется чтение, но не отправка действия.</p><h2 id="6-план-факт">6. План-факт</h2><p><code>GET /api/v1/cabinets/{cabinet_id}/skus/{seller_sku}/plan-fact?period_start=2025-10-01&amp;period_end=2025-10-31</code> возвращает суммы по выбранному SKU. Для каждой продажи план берётся из версии, действовавшей на момент продажи; фактические расходы учитываются за период отдельно.</p><pre class="doc-code "><code>{
+  &quot;cabinet_id&quot;: &quot;00000000-0000-4000-8000-000000000001&quot;,
+  &quot;seller_sku&quot;: &quot;SKU-DEMO-001&quot;,
+  &quot;period_start&quot;: &quot;2025-10-01&quot;,
+  &quot;period_end&quot;: &quot;2025-10-31&quot;,
+  &quot;sold_units&quot;: 2,
+  &quot;planned_profit_total&quot;: &quot;600.00&quot;,
+  &quot;actual_profit_total&quot;: &quot;520.00&quot;,
+  &quot;profit_deviation_total&quot;: &quot;-80.00&quot;,
+  &quot;profit_deviation_per_unit&quot;: &quot;-40.00&quot;,
+  &quot;actual_expenses&quot;: [
+    {&quot;expense_type&quot;: &quot;advertising&quot;, &quot;amount&quot;: &quot;120.00&quot;}
+  ]
+}</code></pre><p>Если продаж нет, фактические расходы остаются в ответе, а <code>profit_deviation_per_unit</code> равен <code>null</code>. Отклонение считается как <code>факт − план</code>.</p><h2 id="7-ошибки-http">7. Ошибки HTTP</h2><p>HTTP-код относится к запросу <strong>интерфейса к MarginPilot</strong>. Отказ Ozon по отдельному SKU после принятия пакета — это результат элемента пакета, а не новый HTTP-ответ на исходный <code>POST</code>.</p><div class="doc-table-wrap"><table class="doc-table"><thead><tr><th>Код</th><th>Случай</th><th>Заголовок</th></tr></thead><tbody><tr><td><code>400</code></td><td>Нечитаемый JSON или неверный формат параметра запроса.</td><td>Некорректный запрос</td></tr><tr><td><code>401</code></td><td>Нет авторизованной сессии.</td><td>Требуется авторизация</td></tr><tr><td><code>404</code></td><td>Не найден запрошенный кабинет, SKU или пакет.</td><td>Ресурс не найден</td></tr><tr><td><code>409</code></td><td>То же действие по SKU и акции ещё не завершено.</td><td>Действие уже выполняется</td></tr><tr><td><code>409</code></td><td><code>Idempotency-Key</code> повторно использован с другим телом.</td><td>Ключ запроса уже использован</td></tr><tr><td><code>422</code></td><td>Итоговый пакет пуст.</td><td>SKU не выбраны</td></tr><tr><td><code>422</code></td><td>Значения в запросе не проходят бизнес-проверку.</td><td>Некорректные данные пакета</td></tr><tr><td><code>422</code></td><td>Не подтверждён SKU с ценой ниже порога.</td><td>Требуется подтверждение цены ниже порога</td></tr><tr><td><code>500</code></td><td>Внутренняя ошибка MarginPilot до принятия команды.</td><td>Внутренняя ошибка MarginPilot</td></tr><tr><td><code>503</code></td><td>Нужный внешний источник недоступен до принятия команды.</td><td>Внешний источник недоступен</td></tr><tr><td><code>504</code></td><td>Чтение внешнего источника до принятия команды завершилось таймаутом.</td><td>Нет ответа от внешнего источника</td></tr></tbody></table></div><p><code>title</code> кратко называет тип ошибки и остаётся одинаковым для всех её повторений; детали конкретного запроса передаются в <code>detail</code>.</p><p>После ответа <code>202</code> сбой или таймаут Ozon отражается в состоянии пакета. Ошибки HTTP возвращаются в едином формате <code>application/problem+json</code>; ниже — пример реконструированного ответа на отсутствие подтверждения цены ниже порога:</p><pre class="doc-code "><code>{
+  &quot;type&quot;: &quot;urn:marginpilot:problem:threshold-confirmation-required&quot;,
+  &quot;title&quot;: &quot;Требуется подтверждение цены ниже порога&quot;,
+  &quot;status&quot;: 422,
+  &quot;detail&quot;: &quot;Подтвердите отправку выбранного SKU или исключите его из пакета.&quot;,
+  &quot;code&quot;: &quot;THRESHOLD_CONFIRMATION_REQUIRED&quot;,
+  &quot;seller_skus&quot;: [&quot;SKU-DEMO-002&quot;]
+}</code></pre><p>Семантика HTTP-кодов опирается на <a href="https://www.rfc-editor.org/rfc/rfc9110.html">RFC 9110</a>, формат тела ошибки — на <a href="https://www.rfc-editor.org/rfc/rfc9457.html">RFC 9457</a>. Значения в таблице — проектный выбор для реконструкции, не свидетельство о кодах исходного API.</p></article><aside class="document-toc"><small>СОДЕРЖАНИЕ</small><a href="#1-общие-правила">1. Общие правила</a><a href="#2-операции">2. Операции</a><a href="#3-оценка-экономики">3. Оценка экономики</a><a href="#4-отправка-пакета">4. Отправка пакета</a><a href="#5-результат-по-sku">5. Результат по SKU</a><a href="#6-план-факт">6. План-факт</a><a href="#7-ошибки-http">7. Ошибки HTTP</a></aside></div></section></main><footer><div class="wrap"><a class="brand" href="../index.html#top">MarginPilot ↗</a><p>Портфельный кейс бизнес- и системного аналитика</p><a href="../artifacts.html">Все артефакты →</a></div></footer></body></html>
